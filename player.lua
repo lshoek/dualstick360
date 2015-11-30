@@ -5,21 +5,20 @@ PLAYER_SPEEDDECR = 0.90
 PLAYER_SPEEDINCR = 20
 PLAYER_MAXSPEED = 120
 PLAYER_ANGLEINCR = 3.6
-PLAYER_BULLETLIMIT = 20
+PLAYER_BULLETLIMIT = 1 -- temporary
 
 Player = {}
 Player.__index = Player
 
-function Player.new(obj)
+function Player.new()
 	local self = setmetatable({}, Player)
-	self.value = obj
+	self.go = GameObjectManager:createGameObject("PlayerOne")
 	return self
 end
 
 -- : inserts metatable at args called 'self'
 function Player:init()
 	-- init player
-	self.go = GameObjectManager:createGameObject("PlayerOne")
 	self.position = Vec3(0, 0, 0)
 	self.yspeed = 0
 	self.xspeed = 0
@@ -31,8 +30,7 @@ function Player:init()
 
 	local cinfo = CharacterRigidBodyCInfo {
 		shape = PhysicsFactory:createSphere(PLAYER_SIZE),
-		position = Vec3(0, 0, 0),
-		enableDeactivation = false
+		position = Vec3(0, 0, 0)
 	}
 
 	self.rb = self.physComp:createRigidBody(cinfo)
@@ -40,7 +38,7 @@ function Player:init()
 
 	-- init bullets
 	for i=1, PLAYER_BULLETLIMIT do
-		local b = Bullet.new()
+		local b = Bullet.new(i)
 		b:init(i)
 		self.bullets[i] = b
 	end
@@ -99,19 +97,11 @@ function Player:update(f)
 	DebugRenderer:drawArrow(self.position, self.position + self.cursorDirection:mulScalar(2000))
 	DebugRenderer:printText(Vec2(-0.8, 0.8), "cursor.angle:" .. self.cursorAngle .. " f:" .. f)
 
-	-- update player bullets
-	if (InputHandler:isPressed(Key.Space) and self.numBullets<1) then
+	-- player bullets
+	if (InputHandler:isPressed(Key.Space) and self.numBullets<PLAYER_BULLETLIMIT) then
 		local b = self.bullets[self.numBullets+1]
-		b:setActive(true)
-		b.position = self.position
-		b.angle = self.cursorAngle
+		b:activateBullet(self.position, self.cursorDirection)
 		self.bullets[self.numBullets+1] = b
 		self.numBullets = self.numBullets + 1
-	end
-
-	for _, b in ipairs(self.bullets) do
-		if(b.active) then
-			b:update(f)
-		end
 	end
 end
