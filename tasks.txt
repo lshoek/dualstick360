@@ -1,0 +1,20 @@
+dualstick360 tasks
+
+	laura (laurad3)
+		shield implementation
+
+	willy (wminet)
+		enemies
+
+	lesley (lshoek)
+		multiple bullets
+
+	norbert (ns079)
+		health/damage
+
+to-do
+
+	camera
+	power-ups/multiple weapons
+	dual-stick steering
+	...
