@@ -6,6 +6,7 @@ PLAYER_SPEEDINCR = 20
 PLAYER_MAXSPEED = 120
 PLAYER_ANGLEINCR = 3.6
 PLAYER_BULLETLIMIT = 20
+PLAYER_BULLETDELAY = 0.1
 
 Player = {}
 Player.__index = Player
@@ -27,6 +28,7 @@ function Player:init()
 	self.cursorAngle = 0
 	self.bullets = {}
 	self.numBullets = 0
+	self.timeSinceLastShot = 0
 
 	local cinfo = CharacterRigidBodyCInfo {
 		shape = PhysicsFactory:createSphere(PLAYER_SIZE),
@@ -95,13 +97,21 @@ function Player:update(f)
 
 	self.cursorDirection = Vec3(math.sin(self.cursorAngle*PI)/180, math.cos(self.cursorAngle*PI)/180, 0)
 	DebugRenderer:drawArrow(self.position, self.position + self.cursorDirection:mulScalar(2000))
-	DebugRenderer:printText(Vec2(-0.8, 0.8), "cursor.angle:" .. self.cursorAngle .. " f:" .. f)
 
 	-- player bullets
-	if (InputHandler:isPressed(Key.Space) and self.numBullets<PLAYER_BULLETLIMIT) then
-		local b = self.bullets[self.numBullets+1]
-		b:activateBullet(self.position, self.cursorDirection)
-		self.bullets[self.numBullets+1] = b
-		self.numBullets = self.numBullets + 1
+	if (InputHandler:isPressed(Key.Space) and 
+		self.numBullets<PLAYER_BULLETLIMIT and
+		self.timeSinceLastShot>PLAYER_BULLETDELAY) then
+			local b = self.bullets[self.numBullets+1]
+			b:activateBullet(self.position, self.cursorDirection)
+			self.bullets[self.numBullets+1] = b
+			self.numBullets = self.numBullets + 1
+			self.timeSinceLastShot = 0
 	end
+
+	if (self.timeSinceLastShot < PLAYER_BULLETDELAY) then
+		self.timeSinceLastShot = self.timeSinceLastShot + f
+	end
+
+	DebugRenderer:printText(Vec2(-0.8, 0.8), "tsls:" .. self.timeSinceLastShot)
 end
