@@ -1,13 +1,10 @@
 include("utils/stateMachine.lua")
 include("dualstick360/player.lua")
 include("dualstick360/bullet.lua")
-
--- constants
-PI = 3.14159265359
+include("dualstick360/utils.lua")
 
 -- variables
 player = {}
-bullets = {}
 cam = GameObjectManager:createGameObject("Camera")
 
 -- physics world
@@ -36,7 +33,10 @@ function update(deltaTime)
 	-- update gameobjects
 	player:update(deltaTime)
 
+	-- utils.lua
+	printTextCalls = 0
 end
+
 Events.Update:registerListener(update)
 
 -- main

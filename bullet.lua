@@ -1,7 +1,8 @@
--- bullet.lua
+include("dualstick360/utils.lua")
 
 BULLET_SIZE = 2
 BULLET_SPEED = 5000
+BULLET_LIFETIME = 2
 
 Bullet = {}
 Bullet.__index = Bullet
@@ -13,6 +14,8 @@ end
 
 function Bullet:init(guid)
 	self.go = GameObjectManager:createGameObject("b" .. guid)
+	self.currentLifeTime = 0
+	self.isActive = false
 	self.physComp = self.go:createPhysicsComponent()
 
 	local cinfo = RigidBodyCInfo()
@@ -29,12 +32,24 @@ function Bullet:init(guid)
 end
 
 function Bullet:activateBullet(position, direction)
+	self.isActive = true
 	self.physComp:setState(ComponentState.Active)
 	self.rb:setPosition(position)
 	self.rb:applyLinearImpulse(direction:mulScalar(BULLET_SPEED))
 end
 
-function Bullet:test()
-	DebugRenderer:printText(Vec2(-0.8, 0.7), 
-		"bullet.position: " .. self.position.x .. " ," .. self.position.y)
+function Bullet:update(f)
+	if (self.currentLifeTime > BULLET_LIFETIME) then
+		self:reset()
+	end
+	self.currentLifeTime = self.currentLifeTime + f
+end
+
+function Bullet:reset(f)
+	self.currentLifeTime = 0
+	self.isActive = false
+	self.rb:setPosition(Vec3(0, 0, 0))
+	self.rb:setLinearVelocity(Vec3(0, 0, 0))
+	self.rb:setAngularVelocity(Vec3(0, 0, 0))
+	self.go:setComponentStates(ComponentState.Inactive)
 end

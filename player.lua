@@ -1,11 +1,12 @@
 include("dualstick360/bullet.lua")
+include("dualstick360/utils.lua")
 
 PLAYER_SIZE = 5
 PLAYER_SPEEDDECR = 0.90
 PLAYER_SPEEDINCR = 20
 PLAYER_MAXSPEED = 120
 PLAYER_ANGLEINCR = 3.6
-PLAYER_BULLETLIMIT = 20
+PLAYER_BULLETLIMIT = 25
 PLAYER_BULLETDELAY = 0.1
 
 Player = {}
@@ -99,19 +100,26 @@ function Player:update(f)
 	DebugRenderer:drawArrow(self.position, self.position + self.cursorDirection:mulScalar(2000))
 
 	-- player bullets
-	if (InputHandler:isPressed(Key.Space) and 
-		self.numBullets<PLAYER_BULLETLIMIT and
-		self.timeSinceLastShot>PLAYER_BULLETDELAY) then
-			local b = self.bullets[self.numBullets+1]
-			b:activateBullet(self.position, self.cursorDirection)
-			self.bullets[self.numBullets+1] = b
-			self.numBullets = self.numBullets + 1
-			self.timeSinceLastShot = 0
+	if (InputHandler:isPressed(Key.Space) and self.timeSinceLastShot>PLAYER_BULLETDELAY) then
+		for _, b in ipairs(self.bullets) do
+			if not (b.isActive) then
+				b:activateBullet(self.position, self.cursorDirection)
+				break
+			end
+		end
+		self.timeSinceLastShot = 0
 	end
 
 	if (self.timeSinceLastShot < PLAYER_BULLETDELAY) then
 		self.timeSinceLastShot = self.timeSinceLastShot + f
 	end
 
-	DebugRenderer:printText(Vec2(-0.8, 0.8), "tsls:" .. self.timeSinceLastShot)
+	local activeBullets = 0
+	for _, b in ipairs(self.bullets) do
+		if (b.isActive) then
+			b:update(f)
+			activeBullets = activeBullets + 1
+		end
+	end
+	printText("active bullets:" .. activeBullets)
 end
