@@ -1,16 +1,31 @@
 dualstick360 tasks
 
 	laura (laurad3)
-		shield implementation
+		doing
+			shield implementation
+		done
+			..
+
 
 	willy (wminet)
-		enemies
+		doing
+			enemies
+		done
+
 
 	lesley (lshoek)
-		multiple bullets
+		doing
+			..
+		done
+			multiple bullets
+			dual-stick steering
+
 
 	norbert (ns079)
-		health/damage
+		doing
+			health/damage
+		done
+			..
 
 to-do
 

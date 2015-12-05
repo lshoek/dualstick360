@@ -2,12 +2,10 @@ include("dualstick360/bullet.lua")
 include("dualstick360/utils.lua")
 
 PLAYER_SIZE = 5
-PLAYER_SPEEDDECR = 0.90
-PLAYER_SPEEDINCR = 20
-PLAYER_MAXSPEED = 120
-PLAYER_ANGLEINCR = 3.6
+PLAYER_MAXSPEED = 40
 PLAYER_BULLETLIMIT = 25
-PLAYER_BULLETDELAY = 0.1
+PLAYER_BULLETDELAY = 0.08
+PLAYER_MINIMUMPUSH = 0.05
 
 Player = {}
 Player.__index = Player
@@ -18,23 +16,33 @@ function Player.new()
 	return self
 end
 
--- : inserts metatable at args called 'self'
-function Player:init()
-	-- init player
-	self.position = Vec3(0, 0, 0)
-	self.yspeed = 0
-	self.xspeed = 0
-	self.physComp = self.go:createPhysicsComponent()
-	self.cursorDirection = Vec3(0, 0, 0)
-	self.cursorAngle = 0
+function Player:init() -- : inserts metatable at args called 'self'
+	-- variables for movement
+	self.movementDirection = Vec3(0, 0, 0)
+	self.moveKeyPressed = false
+
+	-- variables for shooting
 	self.bullets = {}
+	self.cursorDirection = Vec3(0, 0, 0)
 	self.numBullets = 0
 	self.timeSinceLastShot = 0
+	self.shootKeyPressed = false
 
-	local cinfo = CharacterRigidBodyCInfo {
-		shape = PhysicsFactory:createSphere(PLAYER_SIZE),
-		position = Vec3(0, 0, 0)
-	}
+	-- variables for gamepad data
+	self.leftStickAngle = 0
+	self.rightStickAngle = 0
+	self.leftStickPush = 0
+	self.rightStickPush = 0
+
+	-- physicscomponent
+	self.physComp = self.go:createPhysicsComponent()
+
+	local cinfo = RigidBodyCInfo()
+	cinfo.shape = PhysicsFactory:createSphere(PLAYER_SIZE)
+	cinfo.position = Vec3(0, 0, 0)
+	cinfo.mass = 1.5
+	cinfo.linearDamping = 7.0
+	cinfo.motionType = MotionType.Dynamic
 
 	self.rb = self.physComp:createRigidBody(cinfo)
 	self.rb:setUserData(self)
@@ -48,72 +56,82 @@ function Player:init()
 end
 
 function Player:update(f)
-	-- controls (smooth movement w/ arrow keys)
-	if (InputHandler:isPressed(Key.W) and (self.yspeed < PLAYER_MAXSPEED)) then 
-		self.yspeed = self.yspeed - PLAYER_SPEEDINCR
+	-- gamepad movement controls (analog stick angle and push)
+	local leftStick = InputHandler:gamepad(0):leftStick()
+	local rightStick = InputHandler:gamepad(0):rightStick()
+
+	self.leftStickAngle = (math.atan(leftStick.y, leftStick.x)/PI)*180 + 90
+	self.rightStickAngle = (math.atan(rightStick.y, rightStick.x)/PI)*180 + 90
+	self.leftStickPush = leftStick:length()
+	self.rightStickPush = rightStick:length()
+
+	if (self.leftStickAngle < 0) then
+		self.leftStickAngle = self.leftStickAngle + 360
 	end
-	if (InputHandler:isPressed(Key.S) and (self.yspeed > -PLAYER_MAXSPEED)) then 
-		self.yspeed = self.yspeed + PLAYER_SPEEDINCR 
-	end
-	if (InputHandler:isPressed(Key.A) and (self.xspeed > -PLAYER_MAXSPEED)) then 
-		self.xspeed = self.xspeed - PLAYER_SPEEDINCR
-	end
-	if (InputHandler:isPressed(Key.D) and (self.xspeed < PLAYER_MAXSPEED)) then 
-		self.xspeed = self.xspeed + PLAYER_SPEEDINCR 
+	if (self.rightStickAngle < 0) then
+		self.rightStickAngle = self.rightStickAngle + 360
 	end
 
-	if (self.yspeed > 0) then
-		self.yspeed = self.yspeed * PLAYER_SPEEDDECR
-	elseif (self.yspeed < 0) then
-		self.yspeed = self.yspeed * PLAYER_SPEEDDECR
-	else
-		self.yspeed = 0;
+	-- DEBUG keyboard movement controls
+	if (InputHandler:isPressed(Key.W)) then
+		self.leftStickAngle = 180
+		self.leftStickPush = 1
+	elseif (InputHandler:isPressed(Key.S)) then
+		self.leftStickAngle = 0
+		self.leftStickPush = 1
+	elseif (InputHandler:isPressed(Key.A)) then
+		self.leftStickAngle = 270
+		self.leftStickPush = 1
+	elseif (InputHandler:isPressed(Key.D)) then
+		self.leftStickAngle = 90
+		self.leftStickPush = 1
 	end
 
-	if (self.xspeed > 0) then
-		self.xspeed = self.xspeed * PLAYER_SPEEDDECR
-	elseif (self.xspeed < 0) then
-		self.xspeed = self.xspeed * PLAYER_SPEEDDECR
-	else
-		self.xspeed = 0;
+	-- move player
+	if (self.leftStickPush > PLAYER_MINIMUMPUSH) then
+		self.movementDirection = Vec3(math.sin((self.leftStickAngle/360)*2*PI), math.cos(self.leftStickAngle/360*2*PI), 0)
+		self.rb:applyLinearImpulse(self.movementDirection:mulScalar(PLAYER_MAXSPEED * self.leftStickPush))
 	end
 
-	self.position.y = self.position.y + self.yspeed*f;
-	self.position.x = self.position.x + self.xspeed*f;
-
-	self.rb:setPosition(self.position)
-
-	-- update player cursor
-	if (InputHandler:isPressed(Key.Left)) then 
-		self.cursorAngle = self.cursorAngle - PLAYER_ANGLEINCR*f
-		if (self.cursorAngle < 0) then
-			self.cursorAngle = 360 + self.cursorAngle
-		end
+	-- DEBUG keyboard player cursor
+	self.keyboardKeyPressed = false
+	if (InputHandler:isPressed(Key.Up)) then 
+		self.rightStickAngle = 180
+		self.keyboardKeyPressed = true
+	elseif (InputHandler:isPressed(Key.Down)) then 
+		self.rightStickAngle = 0
+		self.keyboardKeyPressed = true
+	elseif (InputHandler:isPressed(Key.Left)) then 
+		self.rightStickAngle = 270
+		self.keyboardKeyPressed = true
 	elseif (InputHandler:isPressed(Key.Right)) then 
-		self.cursorAngle = self.cursorAngle + PLAYER_ANGLEINCR*f
-		if (self.cursorAngle > 360) then
-			self.cursorAngle = self.cursorAngle - 360
-		end
+		self.rightStickAngle = 90
+		self.keyboardKeyPressed = true
 	end
 
-	self.cursorDirection = Vec3(math.sin(self.cursorAngle*PI)/180, math.cos(self.cursorAngle*PI)/180, 0)
-	DebugRenderer:drawArrow(self.position, self.position + self.cursorDirection:mulScalar(2000))
+	-- draw cursor
+	if (self.rightStickPush > PLAYER_MINIMUMPUSH or self.keyboardKeyPressed) then
+		self.cursorDirection = Vec3(math.sin((self.rightStickAngle/360)*2*PI), math.cos(self.rightStickAngle/360*2*PI), 0)
+		DebugRenderer:drawArrow(self.rb:getPosition(), self.rb:getPosition() + self.cursorDirection:mulScalar(PLAYER_SIZE*2))
+	end
 
-	-- player bullets
-	if (InputHandler:isPressed(Key.Space) and self.timeSinceLastShot>PLAYER_BULLETDELAY) then
+	-- shoot bullets
+	if ((self.rightStickPush > 0.5 or self.keyboardKeyPressed) and self.timeSinceLastShot>PLAYER_BULLETDELAY) then
 		for _, b in ipairs(self.bullets) do
 			if not (b.isActive) then
-				b:activateBullet(self.position, self.cursorDirection)
+				b:activateBullet(self.rb:getPosition(), self.cursorDirection)
 				break
 			end
 		end
 		self.timeSinceLastShot = 0
 	end
 
+	-- enable delay between shots
 	if (self.timeSinceLastShot < PLAYER_BULLETDELAY) then
 		self.timeSinceLastShot = self.timeSinceLastShot + f
 	end
 
+	-- update active bullets
 	local activeBullets = 0
 	for _, b in ipairs(self.bullets) do
 		if (b.isActive) then
@@ -121,5 +139,11 @@ function Player:update(f)
 			activeBullets = activeBullets + 1
 		end
 	end
+
+	-- debug printer
+	printText("self.leftstickAngle:" .. self.leftStickAngle)
+	printText("self.rightstickAngle:" .. self.rightStickAngle)
+	printText("self.leftStickPush:" .. self.leftStickPush)
+	printText("self.rightStickPush:" .. self.rightStickPush)
 	printText("active bullets:" .. activeBullets)
 end

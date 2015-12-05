@@ -1,7 +1,7 @@
 include("dualstick360/utils.lua")
 
 BULLET_SIZE = 2
-BULLET_SPEED = 5000
+BULLET_SPEED = 6000
 BULLET_LIFETIME = 2
 
 Bullet = {}
