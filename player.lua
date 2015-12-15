@@ -2,7 +2,7 @@ include("dualstick360/bullet.lua")
 include("dualstick360/utils.lua")
 
 PLAYER_SIZE = 5
-PLAYER_MAXSPEED = 40
+PLAYER_MAXSPEED = 50
 PLAYER_BULLETLIMIT = 25
 PLAYER_BULLETDELAY = 0.08
 PLAYER_MINIMUMPUSH = 0.05
@@ -16,7 +16,7 @@ function Player.new()
 	return self
 end
 
-function Player:init() -- : inserts metatable at args called 'self'
+function Player:init(world) -- : inserts metatable at args called 'self'
 	-- variables for movement
 	self.movementDirection = Vec3(0, 0, 0)
 	self.moveKeyPressed = false
@@ -43,6 +43,7 @@ function Player:init() -- : inserts metatable at args called 'self'
 	cinfo.mass = 1.5
 	cinfo.linearDamping = 7.0
 	cinfo.motionType = MotionType.Dynamic
+	cinfo.collisionFilterInfo = 0x1
 
 	self.rb = self.physComp:createRigidBody(cinfo)
 	self.rb:setUserData(self)
@@ -50,7 +51,7 @@ function Player:init() -- : inserts metatable at args called 'self'
 	-- init bullets
 	for i=1, PLAYER_BULLETLIMIT do
 		local b = Bullet.new(i)
-		b:init(i)
+		b:init(i, world)
 		self.bullets[i] = b
 	end
 end

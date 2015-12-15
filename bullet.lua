@@ -12,18 +12,19 @@ function Bullet.new()
 	return self
 end
 
-function Bullet:init(guid)
+function Bullet:init(guid, world)
 	self.go = GameObjectManager:createGameObject("b" .. guid)
 	self.currentLifeTime = 0
 	self.isActive = false
+	self.isConstrained = false
 	self.physComp = self.go:createPhysicsComponent()
 
 	local cinfo = RigidBodyCInfo()
 	cinfo.shape = PhysicsFactory:createSphere(BULLET_SIZE)
 	cinfo.position = Vec3(0, 0, 0)
-	cinfo.mass = 0.1
-	cinfo.friction = 100
+	cinfo.mass = 0.05
 	cinfo.motionType = MotionType.Dynamic
+	cinfo.collisionFilterInfo = 0x3
 
 	self.rb = self.physComp:createRigidBody(cinfo)
 	self.rb:setUserData(self)
@@ -36,6 +37,22 @@ function Bullet:activateBullet(position, direction)
 	self.physComp:setState(ComponentState.Active)
 	self.rb:setPosition(position)
 	self.rb:applyLinearImpulse(direction:mulScalar(BULLET_SPEED))
+
+	if not (self.isConstrained) then
+		local cinfo = {
+			type = ConstraintType.PointToPlane,
+			A = self.rb,
+			--B = top.rb, -- Comment out this line to use the world as reference point
+			constraintSpace = "world",
+			pivot = Vec3(0,0,0),--bottom:getPosition(),
+			up = Vec3(0, 0, 1),
+			solvingMethod = "stable",
+		}
+
+		local constraint = PhysicsFactory:createConstraint(cinfo)
+		world:addConstraint(constraint)
+		self.isConstrained = true
+	end
 end
 
 function Bullet:update(f)
@@ -43,6 +60,7 @@ function Bullet:update(f)
 		self:reset()
 	end
 	self.currentLifeTime = self.currentLifeTime + f
+	printText(self.go:getGuid() .. ": " .. self.rb:getPosition().x .. ", " .. self.rb:getPosition().y .. ", " .. self.rb:getPosition().z)
 end
 
 function Bullet:reset(f)

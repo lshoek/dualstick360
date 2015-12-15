@@ -9,13 +9,15 @@ dualstick360 tasks
 
 	willy (wminet)
 		doing
-			enemies
+			enemy polishing
+
 		done
+			basic enemies
 
 
 	lesley (lshoek)
 		doing
-			..
+			physics contraints
 		done
 			multiple bullets
 			dual-stick steering
@@ -32,4 +34,4 @@ to-do
 	camera
 	power-ups/multiple weapons
 	dual-stick steering
-	...
+	assign different colors to entities
