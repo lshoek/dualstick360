@@ -2,10 +2,15 @@ include("utils/stateMachine.lua")
 include("dualstick360/player.lua")
 include("dualstick360/bullet.lua")
 include("dualstick360/utils.lua")
+include("dualstick360/enemy_1.lua")
 
 -- variables
 player = {}
 cam = GameObjectManager:createGameObject("Camera")
+ENEMY_1_QUANTITY = 3
+enemy_1_array = {}
+
+GAME_OVER = false
 
 -- physics world
 
@@ -20,7 +25,13 @@ function init()
 	-- player
 	player = Player.new()
 	player:init(world)
-
+	
+	--enemy_1
+	for i = 1, ENEMY_1_QUANTITY do
+		local e1 = Enemy_1.new()
+		e1:init("enemy_1_" .. i,world)
+		enemy_1_array[i] = e1
+	end
 
 	--Events.PostInitialization:registerListener(addBulletConstraints)
 
@@ -65,11 +76,31 @@ function init()
 end
 
 function update(deltaTime)
+
+	if player.hp <= 0 then
+		GAME_OVER = true
+	end
+
 	-- update gameobjects
-	player:update(deltaTime)
+	if not GAME_OVER then
+		player:update(deltaTime)
+	else
+		DebugRenderer:printText(Vec2(-0.1, 0.5), "GAME OVER")
+		DebugRenderer:printText(Vec2(-0.15, 0.45), "Press Return to Restart")
+		player.go:setComponentStates(ComponentState.Inactive)	
+		if (InputHandler:isPressed(Key.Return)) then
+			player.go:setComponentStates(ComponentState.Active)
+			player.hp = PLAYER_HP
+			player.score = 0
+			GAME_OVER = false
+		end
+		
+		
+	end
 
 	-- utils.lua
 	printTextCalls = 0
+	printGameplayTextCalls = 0
 end
 
 Events.Update:registerListener(update)
