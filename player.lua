@@ -26,19 +26,18 @@ function player_bullet_collision(eventData)
 		local rigidBody = eventData:getBody(CollisionArgsCallbackSource.A)
 		
 		for i = 1, ENEMY_1_QUANTITY do
-			
 			for k = 1, ENEMY_1_BULLETLIMIT do
 				if rigidBody:equals(enemy_1_array[i].bullets[k].rb) then
-					player.hp = player.hp - 10			
+					player.hp = player.hp - 10
+					enemy_1_array[i].bullets[k].currentLifeTime = BULLET_LIFETIME
 				end
 			end
 		end
 	
 		return EventResult.Handled
-
 end
 
-function Player:init(world) -- : inserts metatable at args called 'self'
+function Player:init() -- : inserts metatable at args called 'self'
 	-- variables for movement
 	self.movementDirection = Vec3(0, 0, 0)
 	self.moveKeyPressed = false
@@ -69,12 +68,11 @@ function Player:init(world) -- : inserts metatable at args called 'self'
 	cinfo.mass = 1.5
 	cinfo.linearDamping = 7.0
 	cinfo.motionType = MotionType.Dynamic
-	cinfo.collisionFilterInfo = 0x1
+	cinfo.collisionFilterInfo = PLAYER_INFO
 
 	self.rb = self.physComp:createRigidBody(cinfo)
 	self.rb:setUserData(self)
 	self.physComp:getContactPointEvent():registerListener(player_bullet_collision)
-
 
 	-- init bullets
 	for i=1, PLAYER_BULLETLIMIT do
@@ -85,8 +83,6 @@ function Player:init(world) -- : inserts metatable at args called 'self'
 end
 
 function Player:update(f)
-
-
 	-- gamepad movement controls (analog stick angle and push)
 		local leftStick = InputHandler:gamepad(0):leftStick()
 		local rightStick = InputHandler:gamepad(0):rightStick()
@@ -150,7 +146,7 @@ function Player:update(f)
 		if ((self.rightStickPush > 0.5 or self.keyboardKeyPressed) and self.timeSinceLastShot>PLAYER_BULLETDELAY) then
 			for _, b in ipairs(self.bullets) do
 				if not (b.isActive) then
-					b:activateBullet(self.rb:getPosition(), self.cursorDirection)
+					b:activateBullet(self.rb:getPosition(), self.cursorDirection, PLAYER_BULLETSPEED)
 					break
 				end
 			end
@@ -181,6 +177,4 @@ function Player:update(f)
 		printText("self.leftStickPush:" .. self.leftStickPush)
 		printText("self.rightStickPush:" .. self.rightStickPush)
 		printText("active bullets:" .. activeBullets)	
-		
-
 end

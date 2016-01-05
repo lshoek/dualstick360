@@ -10,7 +10,7 @@ ENEMY_1_SIZE = 2
 
 ENEMY_1_BULLETLIMIT = 10 
 ENEMY_1_BULLETDELAY = 0.8
-ENEMY_1_BULLETSPEED = 10
+ENEMY_1_BULLETSPEED = 6
 ENEMY_1_BULLETSIZE = 1
 
 ENEMY_1_HP = 10
@@ -43,6 +43,7 @@ function Enemy_1:init(guid, world)
 	cinfo.position = Vec3(random_xoffset, random_yoffset, 0)
 	cinfo.mass = 0.5
 	cinfo.motionType = MotionType.Dynamic
+	cinfo.collisionFilterInfo = ENEMY_INFO
 
 	self.rb = self.physComp:createRigidBody(cinfo)
 	self.stateTimer = 0

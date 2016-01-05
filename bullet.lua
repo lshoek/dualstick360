@@ -1,7 +1,5 @@
 include("dualstick360/utils.lua")
 
---BULLET_SIZE = 2
-BULLET_SPEED = 6000
 BULLET_LIFETIME = 2
 
 Bullet = {}
@@ -13,7 +11,6 @@ function Bullet.new()
 end
 
 function Bullet:init(guid, world, bullet_size)
-
 	self.go = GameObjectManager:createGameObject("b" .. guid)
 	self.currentLifeTime = 0
 	self.isActive = false
@@ -25,7 +22,11 @@ function Bullet:init(guid, world, bullet_size)
 	cinfo.position = Vec3(0, 0, 0)
 	cinfo.mass = 0.05
 	cinfo.motionType = MotionType.Dynamic
-	cinfo.collisionFilterInfo = 0x3
+	if (string.find(guid, 'e')) then
+		cinfo.collisionFilterInfo = 0x7 -- ENEMYBULLET_INFO
+	else
+		cinfo.collisionFilterInfo = 0x3 -- PLAYERBULLET_INFO
+	end
 
 	self.rb = self.physComp:createRigidBody(cinfo)
 	self.rb:setUserData(self)
@@ -33,12 +34,12 @@ function Bullet:init(guid, world, bullet_size)
 	self.go:setComponentStates(ComponentState.Inactive)
 end
 
-function Bullet:activateBullet(position, direction)
+function Bullet:activateBullet(position, direction, speed)
 	self.isActive = true
-	--self.physComp:setState(ComponentState.Active)
+	self.physComp:setState(ComponentState.Active)
 	self.go:setComponentStates(ComponentState.Active)
 	self.rb:setPosition(position)
-	self.rb:applyLinearImpulse(direction:mulScalar(BULLET_SPEED))
+	self.rb:applyLinearImpulse(direction:mulScalar(speed))
 
 	if not (self.isConstrained) then
 		local cinfo = {
@@ -50,7 +51,6 @@ function Bullet:activateBullet(position, direction)
 			up = Vec3(0, 0, 1),
 			solvingMethod = "stable",
 		}
-
 		local constraint = PhysicsFactory:createConstraint(cinfo)
 		world:addConstraint(constraint)
 		self.isConstrained = true
@@ -58,7 +58,7 @@ function Bullet:activateBullet(position, direction)
 end
 
 function Bullet:update(f)
-	if (self.currentLifeTime > BULLET_LIFETIME) then
+	if (self.currentLifeTime >= BULLET_LIFETIME) then
 		self:reset()
 	end
 	self.currentLifeTime = self.currentLifeTime + f
