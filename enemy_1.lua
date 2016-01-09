@@ -125,6 +125,9 @@ function Enemy_1:init(guid, world)
 		end
 		self.rb:setAngularVelocity(Vec3(0, 0, 0))
 		self.stateTimer = self.stateTimer - eventData:getElapsedTime()
+		
+		--keep on z axe
+		self.rb:setPosition(Vec3(self.rb:getPosition().x,self.rb:getPosition().y,0))
 		return EventResult.Handled
 	end
 	
@@ -151,6 +154,8 @@ function Enemy_1:init(guid, world)
 		self.cursorDirection = Vec3(player.rb:getPosition().x - self.rb:getPosition().x,player.rb:getPosition().y - self.rb:getPosition().y,0):normalized()
 		DebugRenderer:drawArrow(self.rb:getPosition(), self.rb:getPosition() + self.cursorDirection:mulScalar(ENEMY_1_SIZE*2))
 		
+		--keep on z axe
+		self.rb:setPosition(Vec3(self.rb:getPosition().x,self.rb:getPosition().y,0))
 		
 		
 		-- shoot bullets

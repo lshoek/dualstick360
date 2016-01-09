@@ -32,6 +32,7 @@ function init()
 		e1:init("enemy_1_" .. i,world)
 		enemy_1_array[i] = e1
 	end
+	
 
 	--Events.PostInitialization:registerListener(addBulletConstraints)
 

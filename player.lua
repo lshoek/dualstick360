@@ -10,6 +10,7 @@ PLAYER_BULLETSIZE = 2
 PLAYER_MINIMUMPUSH = 0.05
 
 PLAYER_SHIELDDISTANCE = 2 * PLAYER_SIZE
+PLAYER_SHIELDDISTANCE_SIDE = 2 * PLAYER_SIZE * 1.05
 PLAYER_SHIELDRESTITUTION = 1.0
 
 
@@ -100,6 +101,7 @@ function Player:init() -- : inserts metatable at args called 'self'
 
 	local cinfo = RigidBodyCInfo()
 	--cinfo.shape = PhysicsFactory:createBox(Vec3(0.9,4.5,7))
+	--												width				length				height		
 	cinfo.shape = PhysicsFactory:createBox(Vec3(0.19* PLAYER_SIZE,0.93*PLAYER_SIZE,1.4* PLAYER_SIZE))
 	cinfo.position = Vec3(10, 0, 0)
 	cinfo.mass = 0.5
@@ -115,7 +117,8 @@ function Player:init() -- : inserts metatable at args called 'self'
 	shield_r.physComp = shield_r.go:createPhysicsComponent()
 
 	local cinfo = RigidBodyCInfo()
-	cinfo.shape = PhysicsFactory:createBox(Vec3(0.14* PLAYER_SIZE,0.74 * PLAYER_SIZE,1.4* PLAYER_SIZE))
+	--												width				length				height	
+	cinfo.shape = PhysicsFactory:createBox(Vec3(0.19* PLAYER_SIZE,0.76 * PLAYER_SIZE,1.4* PLAYER_SIZE))
 	cinfo.position = Vec3(0, 0, 0)
 	cinfo.mass = 0.5
 	cinfo.restitution = PLAYER_SHIELDRESTITUTION
@@ -133,7 +136,8 @@ function Player:init() -- : inserts metatable at args called 'self'
 	shield_l.physComp = shield_l.go:createPhysicsComponent()
 
 	local cinfo = RigidBodyCInfo()
-	cinfo.shape = PhysicsFactory:createBox(Vec3(0.14* PLAYER_SIZE,0.74 * PLAYER_SIZE,1.4* PLAYER_SIZE))
+	--												width				length				height	
+	cinfo.shape = PhysicsFactory:createBox(Vec3(0.19* PLAYER_SIZE,0.76 * PLAYER_SIZE,1.4* PLAYER_SIZE))
 	cinfo.position = Vec3(0, 0, 0)
 	cinfo.mass = 0.5
 	cinfo.restitution = PLAYER_SHIELDRESTITUTION
@@ -229,7 +233,7 @@ function Player:update(f)
 			self.shieldActive = false
 		end
 		-- calc curserDirection
-		if (self.rightStickPush > PLAYER_MINIMUMPUSH) then
+		if (self.rightStickPush > PLAYER_MINIMUMPUSH or self.keyboardKeyPressed) then
 			self.cursorDirection = Vec3(math.sin((self.rightStickAngle/360)*2*PI), math.cos(self.rightStickAngle/360*2*PI), 0)
 		end
 		
@@ -248,14 +252,14 @@ function Player:update(f)
 			shield_r.go:setComponentStates(ComponentState.Active)
 			q = Quaternion(Vec3(0.0, 0.0, 1.0), 45)
 			v = q:toMat3():mulVec3(self.cursorDirection)
-			shield_r.rb:setPosition(self.rb:getPosition().x + v.x*PLAYER_SHIELDDISTANCE*1.1,self.rb:getPosition().y + v.y*PLAYER_SHIELDDISTANCE, 0)
+			shield_r.rb:setPosition(self.rb:getPosition().x + v.x*PLAYER_SHIELDDISTANCE_SIDE,self.rb:getPosition().y + v.y*PLAYER_SHIELDDISTANCE_SIDE, 0)
 			shieldrotation_deg = calcAngleBetween(Vec3(0,1,0),self.cursorDirection)
 			shield_r.rb:setRotation(Quaternion(Vec3(0,0,1),shieldrotation_deg+45))
 			
 			shield_l.go:setComponentStates(ComponentState.Active)
 			q = Quaternion(Vec3(0.0, 0.0, 1.0), -45)
 			v = q:toMat3():mulVec3(self.cursorDirection)
-			shield_l.rb:setPosition(self.rb:getPosition().x + v.x*PLAYER_SHIELDDISTANCE*1.1,self.rb:getPosition().y + v.y*PLAYER_SHIELDDISTANCE, 0)
+			shield_l.rb:setPosition(self.rb:getPosition().x + v.x*PLAYER_SHIELDDISTANCE_SIDE,self.rb:getPosition().y + v.y*PLAYER_SHIELDDISTANCE_SIDE, 0)
 			shieldrotation_deg = calcAngleBetween(Vec3(0,1,0),self.cursorDirection)
 			shield_l.rb:setRotation(Quaternion(Vec3(0,0,1),shieldrotation_deg-45))
 			
