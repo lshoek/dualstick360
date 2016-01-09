@@ -1,11 +1,5 @@
 dualstick360 tasks
 
-	laura (laurad3)
-		doing
-			shield implementation
-		done
-			..
-
 
 	willy (wminet)
 		doing
@@ -13,6 +7,7 @@ dualstick360 tasks
 
 		done
 			basic enemies
+			shield implementation
 
 
 	lesley (lshoek)
@@ -25,9 +20,9 @@ dualstick360 tasks
 
 	norbert (ns079)
 		doing
-			health/damage
+			camera
 		done
-			..
+			health/damage
 
 to-do
 

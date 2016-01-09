@@ -36,6 +36,7 @@ function init()
 	--Events.PostInitialization:registerListener(addBulletConstraints)
 
 	-- world (block)
+	--[[
 	local block = {}
 	block.go = GameObjectManager:createGameObject("test_Block")
 	block.physComp = block.go:createPhysicsComponent()
@@ -48,8 +49,8 @@ function init()
 	cinfo.collisionFilterInfo = OBJECT_INFO
 
 	block.rb = block.physComp:createRigidBody(cinfo)
-	block.rb:setUserData(block)
-
+	block.rb:setUserData(block)]]--
+--[[
 	-- constraints
 	local cinfo = {
 		type = ConstraintType.PointToPlane,
@@ -76,7 +77,7 @@ function init()
 	-- The constraint must be added in the post-initialization phase
 	Events.PostInitialization:registerListener(function() world:addConstraint(playerConstraint) end)
 	Events.PostInitialization:registerListener(function() world:addConstraint(blockConstraint) end)
-
+]]--
 	-- cam
 	cam.cc = cam:createCameraComponent()
 	cam.cc:setPosition(Vec3(0, 0, -100))
@@ -97,7 +98,10 @@ function update(deltaTime)
 	else
 		DebugRenderer:printText(Vec2(-0.1, 0.5), "GAME OVER")
 		DebugRenderer:printText(Vec2(-0.15, 0.45), "Press Return to Restart")
-		player.go:setComponentStates(ComponentState.Inactive)	
+		player.go:setComponentStates(ComponentState.Inactive)
+		shield.go:setComponentStates(ComponentState.Inactive)
+		shield_l.go:setComponentStates(ComponentState.Inactive)
+		shield_r.go:setComponentStates(ComponentState.Inactive)		
 		if (InputHandler:isPressed(Key.Return)) then
 			player.go:setComponentStates(ComponentState.Active)
 			player.hp = PLAYER_HP
