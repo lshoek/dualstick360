@@ -222,20 +222,23 @@ function Player:update(f)
 			self.keyboardKeyPressed = true
 		end
 
-		-- draw cursor
-		if (self.rightStickPush > PLAYER_MINIMUMPUSH or self.keyboardKeyPressed) then
-			self.cursorDirection = Vec3(math.sin((self.rightStickAngle/360)*2*PI), math.cos(self.rightStickAngle/360*2*PI), 0)
-			DebugRenderer:drawArrow(self.rb:getPosition(), self.rb:getPosition() + self.cursorDirection:mulScalar(PLAYER_SIZE*2))
-		end
-		
-		-- update shield
+		-- update shieldActive
 		if(rightTrigger > 0.9 or InputHandler:isPressed(Key.Space)) then
 			self.shieldActive = true
 		else
 			self.shieldActive = false
 		end
+		-- calc curserDirection
+		if (self.rightStickPush > PLAYER_MINIMUMPUSH) then
+			self.cursorDirection = Vec3(math.sin((self.rightStickAngle/360)*2*PI), math.cos(self.rightStickAngle/360*2*PI), 0)
+		end
 		
+		-- draw cursor
+		if ((self.rightStickPush > PLAYER_MINIMUMPUSH or self.keyboardKeyPressed) and self.shieldActive == false) then
+			DebugRenderer:drawArrow(self.rb:getPosition(), self.rb:getPosition() + self.cursorDirection:mulScalar(PLAYER_SIZE*2))
+		end
 		
+		--update shield		
 		if ((self.rightStickPush > PLAYER_MINIMUMPUSH or self.keyboardKeyPressed) and self.shieldActive) then
 			shield.go:setComponentStates(ComponentState.Active)
 			shield.rb:setPosition(self.rb:getPosition().x + self.cursorDirection.x*PLAYER_SHIELDDISTANCE,self.rb:getPosition().y + self.cursorDirection.y*PLAYER_SHIELDDISTANCE, 0)
