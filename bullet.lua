@@ -40,7 +40,7 @@ function Bullet:activateBullet(position, direction, speed)
 	self.go:setComponentStates(ComponentState.Active)
 	self.rb:setPosition(position)
 	self.rb:applyLinearImpulse(direction:mulScalar(speed))
-
+--[[
 	if not (self.isConstrained) then
 		local cinfo = {
 			type = ConstraintType.PointToPlane,
@@ -54,7 +54,8 @@ function Bullet:activateBullet(position, direction, speed)
 		local constraint = PhysicsFactory:createConstraint(cinfo)
 		world:addConstraint(constraint)
 		self.isConstrained = true
-	end
+	end]]--
+	
 end
 
 function Bullet:update(f)

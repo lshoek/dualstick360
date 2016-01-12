@@ -25,3 +25,15 @@ function printGameplayText(text)
 		printGameplayTextCalls = printGameplayTextCalls + 1
 	end
 end
+
+function calcAngleBetween(vector1, vector2)
+	local angleRad = math.atan(vector2.y, vector2.x) - math.atan(vector1.x, vector1.y)
+	local angleDeg = (angleRad / math.pi) * 180
+	if (angleDeg > 180) then
+		angleDeg = angleDeg - 360
+	end
+	if (angleDeg < -180) then
+		angleDeg = angleDeg + 360
+	end
+	return angleDeg
+end
