@@ -22,19 +22,18 @@ end
 
 	-- collision event
 function player_bullet_collision(eventData)
-		
-		local rigidBody = eventData:getBody(CollisionArgsCallbackSource.A)
-		
-		for i = 1, ENEMY_1_QUANTITY do
-			for k = 1, ENEMY_1_BULLETLIMIT do
-				if rigidBody:equals(enemy_1_array[i].bullets[k].rb) then
-					player.hp = player.hp - 10
-					enemy_1_array[i].bullets[k].currentLifeTime = BULLET_LIFETIME
-				end
+	local rigidBody = eventData:getBody(CollisionArgsCallbackSource.A)
+	
+	for i = 1, ENEMY_1_QUANTITY do
+		for k = 1, ENEMY_1_BULLETLIMIT do
+			if rigidBody:equals(enemy_1_array[i].bullets[k].rb) then
+				player.hp = player.hp - 10
+				enemy_1_array[i].bullets[k].currentLifeTime = BULLET_LIFETIME
 			end
 		end
-	
-		return EventResult.Handled
+	end
+
+	return EventResult.Handled
 end
 
 function Player:init() -- : inserts metatable at args called 'self'
@@ -77,7 +76,7 @@ function Player:init() -- : inserts metatable at args called 'self'
 	-- init bullets
 	for i=1, PLAYER_BULLETLIMIT do
 		local b = Bullet.new(i)
-		b:init(i, world, PLAYER_BULLETSIZE)
+		b:init(i, PLAYER_BULLETSIZE)
 		self.bullets[i] = b
 	end
 end

@@ -29,7 +29,7 @@ function init()
 	--enemy_1
 	for i = 1, ENEMY_1_QUANTITY do
 		local e1 = Enemy_1.new()
-		e1:init("enemy_1_" .. i,world)
+		e1:init("enemy_1_" .. i)
 		enemy_1_array[i] = e1
 	end
 

@@ -230,15 +230,11 @@ function Enemy_1:init(guid)
 		
 	end
 	
-	
-	--StateMachine
-	
+	--StateMachine	
 	io.write("/".. guid .. "FSM")
 	self.fsm_name = guid .. "FSM"
-	
-	
-	self.fsm = StateMachine{ 
-	
+	self.fsm = StateMachine
+	{ 
 		name = guid .. "FSM",
 		parent = "/game" ,
 		states = {
@@ -247,7 +243,6 @@ function Enemy_1:init(guid)
 				eventListeners = {	
 					enter = { self.spawningEnter },			
 				}
-			
 			},
 			{
 				name = "walking",
@@ -265,50 +260,24 @@ function Enemy_1:init(guid)
 					update = {
 						self.attack_playerUpdate
 					}
-		
 				}
-			
 			},
 			{
 				name = "dead",
 				eventListeners = {
-				
-					enter = {self.deadEnter}
-				
+					enter = { self.deadEnter }
 				}
-			
-			
-			
 			}
-				
-		
 		},
 		transitions = {
 			{ from = "__enter", to = "spawning"},
 			{ from = "spawning", to = "walking"},
 			{ from = "walking", to = "attack_player", condition = self.attack_playerCondition},
-			{ from = "attack_player", to = "walking",	condition = function() return InputHandler:wasTriggered(Key.O) end},
+			{ from = "attack_player", to = "walking", condition = function() return InputHandler:wasTriggered(Key.O) end},
 			{ from = "walking", to ="dead", condition = self.deadCondition},
 			{ from = "attack_player", to = "dead", condition = self.deadCondition},
-			{ from = "dead", to = "spawning", condition = function() return InputHandler:wasTriggered(Key.R) end}
-		
-		}
-		
+			{ from = "dead", to = "spawning", condition = function() return InputHandler:wasTriggered(Key.R) end}	
+		}	
 	}
-	
-	self.fsm:run() 
-	
-	
-
+	self.fsm:run()
 end
-
-
-
-
-
-
-
-
-
-
-

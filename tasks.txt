@@ -1,23 +1,21 @@
 dualstick360 tasks
 
-	laura (laurad3)
-		doing
-			shield implementation
-		done
-			..
-
-
 	willy (wminet)
 		doing
 			enemy polishing
 
 		done
+			shield implementation
 			basic enemies
 
 
 	lesley (lshoek)
 		doing
+			following enemy movement pattern
+			
+		on hold
 			physics contraints
+
 		done
 			multiple bullets
 			dual-stick steering
@@ -25,9 +23,10 @@ dualstick360 tasks
 
 	norbert (ns079)
 		doing
-			health/damage
+			camera
+
 		done
-			..
+			health/damage
 
 to-do
 
