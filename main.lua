@@ -32,10 +32,12 @@ function init()
 		e1:init("enemy_1_" .. i)
 		enemy_1_array[i] = e1
 	end
+	
 
 	--Events.PostInitialization:registerListener(addBulletConstraints)
 
 	-- world (block)
+	--[[
 	local block = {}
 	block.go = GameObjectManager:createGameObject("test_Block")
 	block.physComp = block.go:createPhysicsComponent()
@@ -48,8 +50,8 @@ function init()
 	cinfo.collisionFilterInfo = OBJECT_INFO
 
 	block.rb = block.physComp:createRigidBody(cinfo)
-	block.rb:setUserData(block)
-
+	block.rb:setUserData(block)]]--
+--[[
 	-- constraints
 	local cinfo = {
 		type = ConstraintType.PointToPlane,
@@ -76,17 +78,25 @@ function init()
 	-- The constraint must be added in the post-initialization phase
 	Events.PostInitialization:registerListener(function() world:addConstraint(playerConstraint) end)
 	Events.PostInitialization:registerListener(function() world:addConstraint(blockConstraint) end)
-
+]]--
 	-- cam
 	cam.cc = cam:createCameraComponent()
 	cam.cc:setPosition(Vec3(0, 0, -100))
 	cam.lookDir = Vec3(0, 1, 0)
 	cam.cc:lookAt(cam.lookDir:mulScalar(2.5))
 	cam.cc:setState(ComponentState.Active)
+    
+    
 end
 
 function update(deltaTime)
 
+    -- move camera
+    
+    cam.cc:setPosition(Vec3(player.rb:getPosition().x, player.rb:getPosition().y, CAMERA_Z))
+    hb:setPosition(Vec3((2/3)*CAMERA_Z + cam.cc:getPosition().x + 50, (4/15)*CAMERA_Z + cam.cc:getPosition().y -20, (2/15)*CAMERA_Z))
+    
+    
 	if player.hp <= 0 then
 		GAME_OVER = true
 	end
@@ -97,7 +107,10 @@ function update(deltaTime)
 	else
 		DebugRenderer:printText(Vec2(-0.1, 0.5), "GAME OVER")
 		DebugRenderer:printText(Vec2(-0.15, 0.45), "Press Return to Restart")
-		player.go:setComponentStates(ComponentState.Inactive)	
+		player.go:setComponentStates(ComponentState.Inactive)
+		shield.go:setComponentStates(ComponentState.Inactive)
+		shield_l.go:setComponentStates(ComponentState.Inactive)
+		shield_r.go:setComponentStates(ComponentState.Inactive)		
 		if (InputHandler:isPressed(Key.Return)) then
 			player.go:setComponentStates(ComponentState.Active)
 			player.hp = PLAYER_HP
