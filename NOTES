@@ -3,7 +3,12 @@
 // subsystem/physics/havok/world.cpp
 hkBool gep::HavokCollisionFilter_Simple::isCollisionEnabled(hkUint32 infoA, hkUint32 infoB) const
 {
-	if (infoA == 0x3 && infoB == 0x3)
-		return false;
+	if (infoA == 0x3 && infoB == 0x3) return false;
+	
+	if (infoA == 0x3 && infoB == 0x1) return false;
+	if (infoA == 0x1 && infoB == 0x3) return false;
+
+	if (infoA == 0x7 && infoB == 0x3) return false;
+	if (infoA == 0x3 && infoB == 0x7) return false;
     return infoA & infoB;
 }
