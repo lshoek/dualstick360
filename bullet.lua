@@ -10,7 +10,7 @@ function Bullet.new()
 	return self
 end
 
-function Bullet:init(guid, world, bullet_size)
+function Bullet:init(guid, bullet_size)
 	self.go = GameObjectManager:createGameObject("b" .. guid)
 	self.currentLifeTime = 0
 	self.isActive = false
@@ -21,6 +21,8 @@ function Bullet:init(guid, world, bullet_size)
 	cinfo.shape = PhysicsFactory:createSphere(bullet_size)
 	cinfo.position = Vec3(0, 0, 0)
 	cinfo.mass = 0.05
+	cinfo.friction = 0
+	cinfo.linearDamping = 0
 	cinfo.motionType = MotionType.Dynamic
 	cinfo.qualityType = QualityType.Bullet
 	

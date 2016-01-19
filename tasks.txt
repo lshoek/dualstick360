@@ -1,18 +1,22 @@
 dualstick360 tasks
 
-
 	willy (wminet)
 		doing
 			enemy polishing
 
 		done
+			shield implementation
 			basic enemies
 			shield implementation
 
 
 	lesley (lshoek)
 		doing
+			following enemy movement pattern
+			
+		on hold
 			physics contraints
+
 		done
 			multiple bullets
 			dual-stick steering

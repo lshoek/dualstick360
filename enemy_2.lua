@@ -1,41 +1,31 @@
--- enemy_1.lua
 include("dualstick360/player.lua")
 include("dualstick360/bullet.lua")
 include("dualstick360/utils.lua")
 
-Enemy_1 = {}
-Enemy_1.__index = Enemy_1
+Enemy_2 = {}
+Enemy_2.__index = Enemy_2
 
-ENEMY_1_SIZE = 2
+ENEMY_2_SIZE = 5
+ENEMY_2_BULLETLIMIT = 10
+ENEMY_2_BULLETDELAY = 0.8
+ENEMY_2_BULLETSPEED = 6
+ENEMY_2_BULLETSIZE = 1
+ENEMY_2_HP = 10
+ENEMY_2_SCORE_VALUE = 10
+ENEMY_2_ATTACKDISTANCE = 60
 
-ENEMY_1_BULLETLIMIT = 10 
-ENEMY_1_BULLETDELAY = 1.5
-ENEMY_1_BULLETSPEED = 6
-ENEMY_1_BULLETSIZE = 1
-
-ENEMY_1_HP = 3
-ENEMY_1_SCORE_VALUE = 10
-
-ENEMY_1_ATTACKDISTANCE = 30
-
-function Enemy_1.new()
-	local self = setmetatable({}, Enemy_1)
+function Enemy_2.new()
+	local self = setmetatable({}, Enemy_2)
 	return self
 end
 
+function Enemy_2:init(guid)
 
-
-function Enemy_1:init(guid)
+	self.go = GameObjectManager:createGameObject("e2_" .. guid)
+	random_xoffset = math.random(-80, 80) + 20
+	random_yoffset = math.random(-80, 80) + 20
 	
-	
-	--gameobject
-	self.go = GameObjectManager:createGameObject("e1_" .. guid)
-	
-	--random spawning
-	random_xoffset = math.random(-40,40) + 20
-	random_yoffset = math.random(-40,40) + 20
-	
-	--physics component
+	-- physics component
 	self.physComp = self.go:createPhysicsComponent()
 
 	local cinfo = RigidBodyCInfo()
@@ -125,9 +115,6 @@ function Enemy_1:init(guid)
 		end
 		self.rb:setAngularVelocity(Vec3(0, 0, 0))
 		self.stateTimer = self.stateTimer - eventData:getElapsedTime()
-		
-		--keep on z axe
-		self.rb:setPosition(Vec3(self.rb:getPosition().x,self.rb:getPosition().y,0))
 		return EventResult.Handled
 	end
 	
@@ -154,8 +141,6 @@ function Enemy_1:init(guid)
 		self.cursorDirection = Vec3(player.rb:getPosition().x - self.rb:getPosition().x,player.rb:getPosition().y - self.rb:getPosition().y,0):normalized()
 		DebugRenderer:drawArrow(self.rb:getPosition(), self.rb:getPosition() + self.cursorDirection:mulScalar(ENEMY_1_SIZE*2))
 		
-		--keep on z axe
-		self.rb:setPosition(Vec3(self.rb:getPosition().x,self.rb:getPosition().y,0))
 		
 		
 		-- shoot bullets
@@ -235,15 +220,11 @@ function Enemy_1:init(guid)
 		
 	end
 	
-	
-	--StateMachine
-	
+	--StateMachine	
 	io.write("/".. guid .. "FSM")
 	self.fsm_name = guid .. "FSM"
-	
-	
-	self.fsm = StateMachine{ 
-	
+	self.fsm = StateMachine
+	{ 
 		name = guid .. "FSM",
 		parent = "/game" ,
 		states = {
@@ -252,7 +233,6 @@ function Enemy_1:init(guid)
 				eventListeners = {	
 					enter = { self.spawningEnter },			
 				}
-			
 			},
 			{
 				name = "walking",
@@ -270,50 +250,24 @@ function Enemy_1:init(guid)
 					update = {
 						self.attack_playerUpdate
 					}
-		
 				}
-			
 			},
 			{
 				name = "dead",
 				eventListeners = {
-				
-					enter = {self.deadEnter}
-				
+					enter = { self.deadEnter }
 				}
-			
-			
-			
 			}
-				
-		
 		},
 		transitions = {
 			{ from = "__enter", to = "spawning"},
 			{ from = "spawning", to = "walking"},
 			{ from = "walking", to = "attack_player", condition = self.attack_playerCondition},
-			{ from = "attack_player", to = "walking",	condition = function() return InputHandler:wasTriggered(Key.O) end},
+			{ from = "attack_player", to = "walking", condition = function() return InputHandler:wasTriggered(Key.O) end},
 			{ from = "walking", to ="dead", condition = self.deadCondition},
 			{ from = "attack_player", to = "dead", condition = self.deadCondition},
-			{ from = "dead", to = "spawning", condition = function() return InputHandler:wasTriggered(Key.R) end}
-		
-		}
-		
+			{ from = "dead", to = "spawning", condition = function() return InputHandler:wasTriggered(Key.R) end}	
+		}	
 	}
-	
-	self.fsm:run() 
-	
-	
-
+	self.fsm:run()
 end
-
-
-
-
-
-
-
-
-
-
-

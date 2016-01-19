@@ -9,15 +9,20 @@ PLAYER_BULLETSPEED = 6000
 PLAYER_BULLETSIZE = 2
 PLAYER_MINIMUMPUSH = 0.05
 
+
+CAMERA_Z = -150
 PLAYER_SHIELDDISTANCE = 2 * PLAYER_SIZE
 PLAYER_SHIELDDISTANCE_SIDE = 2 * PLAYER_SIZE * 1.05
 PLAYER_SHIELDRESTITUTION = 1.0
 
 
 RUMBLE_ON = true
+
 PLAYER_HP = 100
-HEALTH_BAR_LENGTH = 50
-HEALTH_BAR_X_POS = -75
+HEALTH_BAR_LENGTH = 50      -- -(1/3) * CAMERA_Z 
+HEALTH_BAR_WIDTH = 5        -- -(1/30) * CAMERA_Z 
+
+
 
 Player = {}
 Player.__index = Player
@@ -48,8 +53,9 @@ function player_bullet_collision(eventData)
 				end
 			end
 		end
-		
-		return EventResult.Handled
+	end
+
+	return EventResult.Handled
 end
 
 function Player:init() -- : inserts metatable at args called 'self'
@@ -154,18 +160,18 @@ function Player:init() -- : inserts metatable at args called 'self'
 	-- init bullets
 	for i=1, PLAYER_BULLETLIMIT do
 		local b = Bullet.new(i)
-		b:init(i, world, PLAYER_BULLETSIZE)
+		b:init(i, PLAYER_BULLETSIZE)
 		self.bullets[i] = b
 	end
 	
 	
     
     -- health bar
-    local hb = GameObjectManager:createGameObject("myHealthBar")
+    hb = GameObjectManager:createGameObject("myHealthBar")
     hb.rc = hb:createRenderComponent()
     hb.rc:setPath("data/models/box.thModel")
     hb.rc:setScale(Vec3(5, -(self.hp/PLAYER_HP)*HEALTH_BAR_LENGTH, 0.1))
-    hb:setPosition(Vec3(-100, -40, 0))
+    hb:setPosition(Vec3((2/3)*CAMERA_Z-150,(4/15)*CAMERA_Z, (2/15)*CAMERA_Z))
     hb:setRotation(Quaternion(Vec3(0,0,1),90))
     self.hb = hb
     
