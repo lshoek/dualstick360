@@ -50,10 +50,10 @@ function player_bullet_collision(eventData)
 						InputHandler:gamepad(0):rumbleLeftFor(0.8,0.00012)
 						InputHandler:gamepad(0):rumbleRightFor(0.8,0.00012)
 					end
+					
 				end
 			end
 		end
-	end
 
 	return EventResult.Handled
 end
