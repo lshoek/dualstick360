@@ -22,6 +22,9 @@ function Bullet:init(guid, world, bullet_size)
 	cinfo.position = Vec3(0, 0, 0)
 	cinfo.mass = 0.05
 	cinfo.motionType = MotionType.Dynamic
+	cinfo.qualityType = QualityType.Bullet
+	
+	
 	if (string.find(guid, 'e')) then
 		cinfo.collisionFilterInfo = 0x7 -- ENEMYBULLET_INFO
 	else
@@ -59,7 +62,7 @@ function Bullet:activateBullet(position, direction, speed)
 end
 
 function Bullet:update(f)
-	if (self.currentLifeTime >= BULLET_LIFETIME) then
+	if (self.currentLifeTime >= BULLET_LIFETIME or self.rb:getLinearVelocity():length() < 70) then
 		self:reset()
 	end
 	self.currentLifeTime = self.currentLifeTime + f
