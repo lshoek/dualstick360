@@ -54,7 +54,7 @@ function Enemy_2:init(guid)
 	-- init bullets
 	for i = 1, ENEMY_1_BULLETLIMIT do
 		local b = Bullet.new(i)
-		b:init(guid .. i, ENEMY_1_BULLETSIZE)
+		b:init(guid .. i, false, ENEMY_1_BULLETSIZE)
 		self.bullets[i] = b
 	end
 	

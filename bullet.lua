@@ -10,12 +10,58 @@ function Bullet.new()
 	return self
 end
 
-function Bullet:init(guid, bullet_size)
+function bulletCollision(eventData)
+		
+		local ridigBody_Bullet = eventData:getBody(CollisionArgsCallbackSource.A)
+		local rigidBody_Other = eventData:getBody(CollisionArgsCallbackSource.B)
+		
+		--Player gets hit
+		if rigidBody_Other:equals(player.rb) then
+			--by own bullet
+			if ridigBody_Bullet:getUserData().fromPlayer then
+				return EventResult.Handled
+			--by other bullet
+			else
+				player.hp = player.hp - 10
+				ridigBody_Bullet:getUserData().currentLifeTime = BULLET_LIFETIME
+				local hpLenght = (player.hp/PLAYER_HP)*HEALTH_BAR_LENGTH
+				player.hb.rc:setScale(Vec3(5, -hpLenght, 0.1))
+				
+				--activate controller rumble motors
+				if(RUMBLE_ON == true) then
+					InputHandler:gamepad(0):rumbleLeftFor(0.8,0.00012)
+					InputHandler:gamepad(0):rumbleRightFor(0.8,0.00012)
+				end
+			
+			end
+			return EventResult.Handled
+		end
+		
+		--enemy_1 gets hit
+		for i = 1, ENEMY_1_QUANTITY do
+			
+			if rigidBody_Other:equals(enemy_1_array[i].rb) then
+			
+				enemy_1_array[i].hp = enemy_1_array[i].hp - 1 
+				ridigBody_Bullet:getUserData().currentLifeTime = BULLET_LIFETIME
+				return EventResult.Handled
+				
+			end
+			
+		end
+
+	return EventResult.Handled
+end
+
+function Bullet:init(guid, fromPlayer,bullet_size)
+	
 	self.go = GameObjectManager:createGameObject("b" .. guid)
 	self.currentLifeTime = 0
 	self.isActive = false
 	self.isConstrained = false
+	self.fromPlayer = fromPlayer
 	self.physComp = self.go:createPhysicsComponent()
+	self.physComp:getContactPointEvent():registerListener(bulletCollision)
 
 	local cinfo = RigidBodyCInfo()
 	cinfo.shape = PhysicsFactory:createSphere(bullet_size)
@@ -64,7 +110,7 @@ function Bullet:activateBullet(position, direction, speed)
 end
 
 function Bullet:update(f)
-	if (self.currentLifeTime >= BULLET_LIFETIME or self.rb:getLinearVelocity():length() < 70) then
+	if (self.currentLifeTime >= BULLET_LIFETIME) then -- or self.rb:getLinearVelocity():length() < 70
 		self:reset()
 	end
 	self.currentLifeTime = self.currentLifeTime + f
