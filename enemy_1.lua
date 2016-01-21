@@ -7,15 +7,12 @@ Enemy_1 = {}
 Enemy_1.__index = Enemy_1
 
 ENEMY_1_SIZE = 8
-
 ENEMY_1_BULLETLIMIT = 10 
 ENEMY_1_BULLETDELAY = 1.5
 ENEMY_1_BULLETSPEED = 6
-ENEMY_1_BULLETSIZE = 1
-
+ENEMY_1_BULLETSIZE = 3
 ENEMY_1_HP = 3
 ENEMY_1_SCORE_VALUE = 10
-
 ENEMY_1_ATTACKDISTANCE = 30
 
 function Enemy_1.new()
@@ -32,8 +29,8 @@ function Enemy_1:init(guid)
 	self.go = GameObjectManager:createGameObject("e1_" .. guid)
 	
 	--random spawning
-	random_xoffset = math.random(-40,40) + 20
-	random_yoffset = math.random(-40,40) + 20
+	random_xoffset = math.random(-160, 160) + 20
+	random_yoffset = math.random(-160, 160) + 20
 	
 	--physics component
 	self.physComp = self.go:createPhysicsComponent()
@@ -73,8 +70,8 @@ function Enemy_1:init(guid)
 	-- spawning - State
 	self.spawningEnter = function(eventData)
 
-		random_xoffset = math.random(-40, 40) + 20
-		random_yoffset = math.random(-40, 40) + 20
+		random_xoffset = math.random(-160, 160) + 20
+		random_yoffset = math.random(-160, 160) + 20
 		
 		self.rb:setPosition(Vec3((player.rb:getPosition().x + random_xoffset), (player.rb:getPosition().y + random_yoffset), 0.0))
 		
@@ -155,19 +152,7 @@ function Enemy_1:init(guid)
 		-- enable delay between shots
 		if (self.timeSinceLastShot < ENEMY_1_BULLETDELAY) then
 			self.timeSinceLastShot = self.timeSinceLastShot + eventData:getElapsedTime()
-		end
-
-		-- update active bullets
-		local activeBullets = 0
-		for _, b in ipairs(self.bullets) do
-			if (b.isActive) then
-				b:update(eventData:getElapsedTime())
-				activeBullets = activeBullets + 1
-			end
-		end
-		
-		
-		
+		end		
 		return EventResult.Handled
 	end
 	

@@ -11,7 +11,6 @@ function Bullet.new()
 end
 
 function bulletCollision(eventData)
-		
 		local ridigBody_Bullet = eventData:getBody(CollisionArgsCallbackSource.A)
 		local rigidBody_Other = eventData:getBody(CollisionArgsCallbackSource.B)
 		
@@ -36,7 +35,6 @@ function bulletCollision(eventData)
 					end
 				end
 			end
-
 			return EventResult.Handled
 		end
 		
@@ -50,15 +48,12 @@ function bulletCollision(eventData)
 					ridigBody_Bullet:getUserData().currentLifeTime = BULLET_LIFETIME
 					return EventResult.Handled
 				end
-			end
-			
+			end		
 		end
-
 	return EventResult.Handled
 end
 
 function Bullet:init(guid, fromPlayer, bullet_size)
-	
 	self.go = GameObjectManager:createGameObject("b" .. guid)
 	self.currentLifeTime = 0
 	self.isActive = false
@@ -76,7 +71,6 @@ function Bullet:init(guid, fromPlayer, bullet_size)
 	cinfo.motionType = MotionType.Dynamic
 	cinfo.qualityType = QualityType.Bullet
 	
-	
 	if (string.find(guid, 'e')) then
 		cinfo.collisionFilterInfo = 0x7 -- ENEMYBULLET_INFO
 	else
@@ -85,7 +79,6 @@ function Bullet:init(guid, fromPlayer, bullet_size)
 
 	self.rb = self.physComp:createRigidBody(cinfo)
 	self.rb:setUserData(self)
-
 	self.go:setComponentStates(ComponentState.Inactive)
 end
 

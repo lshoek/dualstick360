@@ -26,24 +26,25 @@ PhysicsSystem:setWorld(world)
 
 -- functions
 function init()
-	-- player
+	-- init player
 	player = Player.new()
 	player:init()
 	
-	--enemy_1
+	-- init enemy_1
 	for i = 1, ENEMY_1_QUANTITY do
 		local e = Enemy_1.new()
 		e:init("enemy_1_" .. i)
 		enemy_1_array[i] = e
 	end
+
+	-- init enemy_2
 	for i = 1, ENEMY_2_QUANTITY do
 		local e = Enemy_2.new()
 		e:init("enemy_2_" .. i)
 		enemy_2_array[i] = e
 	end
 	
-	--testHealthpack
-	
+	-- testHealthpack
 	testhealthpack = HEALTHPACK.new()
 	testhealthpack:init("testpack", Vec3(-50,0,0))
 	--world	
@@ -102,11 +103,11 @@ function init()
 end
 
 function update(deltaTime)
-
     -- move camera
     cam.cc:setPosition(Vec3(player.rb:getPosition().x, player.rb:getPosition().y, CAMERA_Z))
     hb:setPosition(Vec3((2/3)*CAMERA_Z + cam.cc:getPosition().x + 50, (4/15)*CAMERA_Z + cam.cc:getPosition().y -20, (2/15)*CAMERA_Z))
     
+    -- check hp
 	if player.hp <= 0 then
 		GAME_OVER = true
 	end
@@ -114,6 +115,28 @@ function update(deltaTime)
 	-- update gameobjects
 	if not GAME_OVER then
 		player:update(deltaTime)
+
+		for _, b in ipairs(player.bullets) do
+			if (b.isActive) then
+				b:update(deltaTime)
+			end
+		end
+
+		for _, e in ipairs(enemy_1_array) do
+			for _, b in ipairs(e.bullets) do
+				if (b.isActive) then
+					b:update(deltaTime)
+				end
+			end
+		end
+
+		for _, e in ipairs(enemy_2_array) do
+			for _, b in ipairs(e.bullets) do
+				if (b.isActive) then
+					b:update(deltaTime)
+				end
+			end
+		end
 	else
 		DebugRenderer:printText(Vec2(-0.1, 0.5), "GAME OVER")
 		DebugRenderer:printText(Vec2(-0.15, 0.45), "Press Return to Restart")

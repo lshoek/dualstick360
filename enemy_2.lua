@@ -29,7 +29,7 @@ function Enemy_2:init(guid)
 	self.physComp = self.go:createPhysicsComponent()
 
 	local cinfo = RigidBodyCInfo()
-	cinfo.shape = PhysicsFactory:createBox(Vec3(ENEMY_2_SIZE,ENEMY_2_SIZE,ENEMY_2_SIZE))
+	cinfo.shape = PhysicsFactory:createBox(Vec3(ENEMY_2_SIZE, ENEMY_2_SIZE, ENEMY_2_SIZE))
 	cinfo.position = Vec3(0, 0, 0)
 	cinfo.mass = 5
 	cinfo.motionType = MotionType.Dynamic
@@ -85,10 +85,9 @@ function Enemy_2:init(guid)
 	end
 	
 	-- walking
-	self.walkingUpdate =  function(eventData)
+	self.walkingUpdate = function(eventData)
 		-- do nothing
-		--self.targetDirection = Vec3(player.rb:getPosition() - self.rb:getPosition()):normalized()
-		--self.rb:applyLinearImpulse(self.targetDirection:mulScalar(ENEMY_2_SPEED))
+		self.rb:setPosition(Vec3(self.rb:getPosition().x, self.rb:getPosition().y, 0))
 		self.stateTimer = self.stateTimer - eventData:getElapsedTime()
 		return EventResult.Handled
 	end
@@ -106,13 +105,15 @@ function Enemy_2:init(guid)
 		end
 		DebugRenderer:drawArrow(self.rb:getPosition(), self.rb:getPosition() + viewDirection:mulScalar(10))
 
+		self.rb:setPosition(Vec3(self.rb:getPosition().x, self.rb:getPosition().y, 0))
 		self.stateTimer = self.stateTimer - eventData:getElapsedTime()
 		
 		-- shoot bullets
-		if(self.timeSinceLastShot > ENEMY_2_BULLETDELAY) then
+		if (self.timeSinceLastShot >= ENEMY_2_BULLETDELAY) then
 			for _, b in ipairs(self.bullets) do
+				printText("b")
 				if not (b.isActive) then
-					b:activateBullet(self.rb:getPosition() + targetDirection:mulScalar(ENEMY_2_SIZE*2), targetDirection, ENEMY_2_BULLETSPEED)
+					b:activateBullet(self.rb:getPosition(), targetDirection, ENEMY_2_BULLETSPEED)
 					break
 				end
 			end
@@ -122,15 +123,6 @@ function Enemy_2:init(guid)
 		-- enable delay between shots
 		if (self.timeSinceLastShot < ENEMY_2_BULLETDELAY) then
 			self.timeSinceLastShot = self.timeSinceLastShot + eventData:getElapsedTime()
-		end
-
-		-- update active bullets
-		local activeBullets = 0
-		for _, b in ipairs(self.bullets) do
-			if (b.isActive) then
-				b:update(eventData:getElapsedTime())
-				activeBullets = activeBullets + 1
-			end
 		end
 		return EventResult.Handled
 	end

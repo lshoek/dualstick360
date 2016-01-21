@@ -30,10 +30,8 @@ function Player.new()
 end
 
 function healthbarupdate()
-
 	local hpLenght = (player.hp/PLAYER_HP)*HEALTH_BAR_LENGTH
 	player.hb.rc:setScale(Vec3(5, -hpLenght, 0.1))
-	
 end
 
 function Player:init() -- : inserts metatable at args called 'self'
@@ -240,8 +238,6 @@ function Player:update(f)
 			shield_l.rb:setPosition(self.rb:getPosition().x + v.x*PLAYER_SHIELDDISTANCE_SIDE,self.rb:getPosition().y + v.y*PLAYER_SHIELDDISTANCE_SIDE, 0)
 			shieldrotation_deg = calcAngleBetween(Vec3(0,1,0),self.cursorDirection)
 			shield_l.rb:setRotation(Quaternion(Vec3(0,0,1),shieldrotation_deg-45))
-			
-			
 		else
 			shield.go:setComponentStates(ComponentState.Inactive)
 			shield_l.go:setComponentStates(ComponentState.Inactive)
@@ -264,15 +260,6 @@ function Player:update(f)
 			self.timeSinceLastShot = self.timeSinceLastShot + f
 		end
 		
-		-- update active bullets
-		local activeBullets = 0
-		for _, b in ipairs(self.bullets) do
-			if (b.isActive) then
-				b:update(f)
-				activeBullets = activeBullets + 1
-			end
-		end
-		
 		--keep on z axe
 		self.rb:setPosition(Vec3(self.rb:getPosition().x,self.rb:getPosition().y,0))
 		
@@ -284,7 +271,6 @@ function Player:update(f)
 		printText("self.leftstickAngle:" .. self.leftStickAngle)
 		printText("self.rightstickAngle:" .. self.rightStickAngle)
 		printText("self.leftStickPush:" .. self.leftStickPush)
-		printText("self.rightStickPush:" .. self.rightStickPush)
-		printText("active bullets:" .. activeBullets)	
+		printText("self.rightStickPush:" .. self.rightStickPush)	
 		printText("rightTriggerValue: " .. rightTrigger) 
 end
