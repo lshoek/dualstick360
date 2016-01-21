@@ -57,7 +57,7 @@ function bulletCollision(eventData)
 	return EventResult.Handled
 end
 
-function Bullet:init(guid, fromPlayer,bullet_size)
+function Bullet:init(guid, fromPlayer, bullet_size)
 	
 	self.go = GameObjectManager:createGameObject("b" .. guid)
 	self.currentLifeTime = 0

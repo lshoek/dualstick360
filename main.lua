@@ -9,7 +9,8 @@ include("dualstick360/enemy_2.lua")
 -- variables
 player = {}
 cam = GameObjectManager:createGameObject("Camera")
-ENEMY_QUANTITY = 10
+ENEMY_1_QUANTITY = 5
+ENEMY_2_QUANTITY = 5
 enemy_1_array = {}
 enemy_2_array = {}
 
@@ -30,16 +31,15 @@ function init()
 	player:init()
 	
 	--enemy_1
-	for i = 1, ENEMY_QUANTITY do
-		if (math.random(2) == 1) then
-			local e = Enemy_1.new()
-			e:init("enemy_1_" .. i)
-			enemy_1_array[i] = e
-		else
-			local e = Enemy_2.new()
-			e:init("enemy_2_" .. i)
-			enemy_2_array[i] = e
-		end
+	for i = 1, ENEMY_1_QUANTITY do
+		local e = Enemy_1.new()
+		e:init("enemy_1_" .. i)
+		enemy_1_array[i] = e
+	end
+	for i = 1, ENEMY_2_QUANTITY do
+		local e = Enemy_2.new()
+		e:init("enemy_2_" .. i)
+		enemy_2_array[i] = e
 	end
 	
 	--testHealthpack
