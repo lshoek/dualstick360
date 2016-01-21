@@ -9,11 +9,11 @@ Enemy_1.__index = Enemy_1
 ENEMY_1_SIZE = 8
 
 ENEMY_1_BULLETLIMIT = 10 
-ENEMY_1_BULLETDELAY = 0.8
+ENEMY_1_BULLETDELAY = 1.5
 ENEMY_1_BULLETSPEED = 6
 ENEMY_1_BULLETSIZE = 1
 
-ENEMY_1_HP = 10
+ENEMY_1_HP = 3
 ENEMY_1_SCORE_VALUE = 10
 
 ENEMY_1_ATTACKDISTANCE = 30
@@ -64,30 +64,12 @@ function Enemy_1:init(guid)
 	-- init bullets
 	for i = 1, ENEMY_1_BULLETLIMIT do
 		local b = Bullet.new(i)
-		b:init(guid .. i, ENEMY_1_BULLETSIZE)
+		b:init(guid .. i, false,ENEMY_1_BULLETSIZE)
 		self.bullets[i] = b
 	end
 	
 	-- Update Statemachine -- Update Functions
-	
-	-- collision event
-	self.Bullet_collision = function(eventData)
-		local rigidBody = eventData:getBody(CollisionArgsCallbackSource.A)
-	
-		for i=1, PLAYER_BULLETLIMIT do
-			if rigidBody:equals(player.bullets[i].rb) then
-				self.hp = self.hp - 1			
-			end
-		end
-	
-		return EventResult.Handled
 
-	end
-
-	self.physComp:getContactPointEvent():registerListener(self.Bullet_collision)
-	
-	
-	
 	-- spawning - State
 	self.spawningEnter = function(eventData)
 

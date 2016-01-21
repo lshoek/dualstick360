@@ -10,12 +10,62 @@ function Bullet.new()
 	return self
 end
 
-function Bullet:init(guid, bullet_size)
+function bulletCollision(eventData)
+		
+		local ridigBody_Bullet = eventData:getBody(CollisionArgsCallbackSource.A)
+		local rigidBody_Other = eventData:getBody(CollisionArgsCallbackSource.B)
+		
+		--Player gets hit
+		if rigidBody_Other:equals(player.rb) then
+			--by own bullet
+			if ridigBody_Bullet:getUserData().fromPlayer then
+				return EventResult.Handled
+			--by other bullet
+			else
+				if(ridigBody_Bullet:getUserData().isActive == true) then
+					player.hp = player.hp - 10
+					io.write("damageplayer\n")
+					healthbarupdate()
+					ridigBody_Bullet:getUserData().isActive = false
+					ridigBody_Bullet:getUserData().currentLifeTime = BULLET_LIFETIME
+
+					--activate controller rumble motors
+					if(RUMBLE_ON == true) then
+						InputHandler:gamepad(0):rumbleLeftFor(0.8,0.00012)
+						InputHandler:gamepad(0):rumbleRightFor(0.8,0.00012)
+					end
+				end
+			end
+
+			return EventResult.Handled
+		end
+		
+		--enemy_1 gets hit
+		for i = 1, ENEMY_1_QUANTITY do
+			
+			if rigidBody_Other:equals(enemy_1_array[i].rb) then
+				if(ridigBody_Bullet:getUserData().isActive == true) then
+					enemy_1_array[i].hp = enemy_1_array[i].hp - 1 
+					ridigBody_Bullet:getUserData().isActive = false
+					ridigBody_Bullet:getUserData().currentLifeTime = BULLET_LIFETIME
+					return EventResult.Handled
+				end
+			end
+			
+		end
+
+	return EventResult.Handled
+end
+
+function Bullet:init(guid, fromPlayer,bullet_size)
+	
 	self.go = GameObjectManager:createGameObject("b" .. guid)
 	self.currentLifeTime = 0
 	self.isActive = false
 	self.isConstrained = false
+	self.fromPlayer = fromPlayer
 	self.physComp = self.go:createPhysicsComponent()
+	self.physComp:getContactPointEvent():registerListener(bulletCollision)
 
 	local cinfo = RigidBodyCInfo()
 	cinfo.shape = PhysicsFactory:createSphere(bullet_size)
@@ -24,6 +74,9 @@ function Bullet:init(guid, bullet_size)
 	cinfo.friction = 0
 	cinfo.linearDamping = 0
 	cinfo.motionType = MotionType.Dynamic
+	cinfo.qualityType = QualityType.Bullet
+	
+	
 	if (string.find(guid, 'e')) then
 		cinfo.collisionFilterInfo = 0x7 -- ENEMYBULLET_INFO
 	else
@@ -61,7 +114,7 @@ function Bullet:activateBullet(position, direction, speed)
 end
 
 function Bullet:update(f)
-	if (self.currentLifeTime >= BULLET_LIFETIME or self.rb:getLinearVelocity():length() < 100) then
+	if (self.currentLifeTime >= BULLET_LIFETIME) then -- or self.rb:getLinearVelocity():length() < 70
 		self:reset()
 	end
 	self.currentLifeTime = self.currentLifeTime + f
