@@ -22,18 +22,21 @@ function bulletCollision(eventData)
 				return EventResult.Handled
 			--by other bullet
 			else
-				player.hp = player.hp - 10
-				ridigBody_Bullet:getUserData().currentLifeTime = BULLET_LIFETIME
-				local hpLenght = (player.hp/PLAYER_HP)*HEALTH_BAR_LENGTH
-				player.hb.rc:setScale(Vec3(5, -hpLenght, 0.1))
-				
-				--activate controller rumble motors
-				if(RUMBLE_ON == true) then
-					InputHandler:gamepad(0):rumbleLeftFor(0.8,0.00012)
-					InputHandler:gamepad(0):rumbleRightFor(0.8,0.00012)
+				if(ridigBody_Bullet:getUserData().isActive == true) then
+					player.hp = player.hp - 10
+					io.write("damageplayer\n")
+					healthbarupdate()
+					ridigBody_Bullet:getUserData().isActive = false
+					ridigBody_Bullet:getUserData().currentLifeTime = BULLET_LIFETIME
+
+					--activate controller rumble motors
+					if(RUMBLE_ON == true) then
+						InputHandler:gamepad(0):rumbleLeftFor(0.8,0.00012)
+						InputHandler:gamepad(0):rumbleRightFor(0.8,0.00012)
+					end
 				end
-			
 			end
+
 			return EventResult.Handled
 		end
 		
@@ -41,11 +44,12 @@ function bulletCollision(eventData)
 		for i = 1, ENEMY_1_QUANTITY do
 			
 			if rigidBody_Other:equals(enemy_1_array[i].rb) then
-			
-				enemy_1_array[i].hp = enemy_1_array[i].hp - 1 
-				ridigBody_Bullet:getUserData().currentLifeTime = BULLET_LIFETIME
-				return EventResult.Handled
-				
+				if(ridigBody_Bullet:getUserData().isActive == true) then
+					enemy_1_array[i].hp = enemy_1_array[i].hp - 1 
+					ridigBody_Bullet:getUserData().isActive = false
+					ridigBody_Bullet:getUserData().currentLifeTime = BULLET_LIFETIME
+					return EventResult.Handled
+				end
 			end
 			
 		end

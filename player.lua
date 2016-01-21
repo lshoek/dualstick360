@@ -33,6 +33,13 @@ function Player.new()
 	return self
 end
 
+function healthbarupdate()
+
+	local hpLenght = (player.hp/PLAYER_HP)*HEALTH_BAR_LENGTH
+	player.hb.rc:setScale(Vec3(5, -hpLenght, 0.1))
+	
+end
+
 function Player:init() -- : inserts metatable at args called 'self'
 
 	-- variables for movement
@@ -260,7 +267,7 @@ function Player:update(f)
 		if (self.timeSinceLastShot < PLAYER_BULLETDELAY) then
 			self.timeSinceLastShot = self.timeSinceLastShot + f
 		end
-
+		
 		-- update active bullets
 		local activeBullets = 0
 		for _, b in ipairs(self.bullets) do

@@ -3,6 +3,7 @@ include("utils/stateMachine.lua")
 include("dualstick360/player.lua")
 include("dualstick360/bullet.lua")
 include("dualstick360/enemy_1.lua")
+include("dualstick360/healthpack.lua")
 
 -- variables
 player = {}
@@ -33,6 +34,10 @@ function init()
 		enemy_1_array[i] = e1
 	end
 	
+	--testHealthpack
+	
+	testhealthpack = HEALTHPACK.new()
+	testhealthpack:init("testpack", Vec3(-50,0,0))
 	--world	
 
 	--Events.PostInitialization:registerListener(addBulletConstraints)
