@@ -22,8 +22,6 @@ PLAYER_HP = 100
 HEALTH_BAR_LENGTH = 50      -- -(1/3) * CAMERA_Z 
 HEALTH_BAR_WIDTH = 5        -- -(1/30) * CAMERA_Z 
 
-
-
 Player = {}
 Player.__index = Player
 
@@ -33,28 +31,27 @@ function Player.new()
 	return self
 end
 
-	-- collision event
+-- collision event
 function player_bullet_collision(eventData)
-		
-		local rigidBody = eventData:getBody(CollisionArgsCallbackSource.A)
-		
-		for i = 1, ENEMY_1_QUANTITY do
-			for k = 1, ENEMY_1_BULLETLIMIT do
-				if rigidBody:equals(enemy_1_array[i].bullets[k].rb) then
-					player.hp = player.hp - 10
-					enemy_1_array[i].bullets[k].currentLifeTime = BULLET_LIFETIME
-                    local hpLenght = (player.hp/PLAYER_HP)*HEALTH_BAR_LENGTH
-                    player.hb.rc:setScale(Vec3(5, -hpLenght, 0.1))
-					--activate controller rumble motors
-					if(RUMBLE_ON == true) then
-						InputHandler:gamepad(0):rumbleLeftFor(0.8,0.00012)
-						InputHandler:gamepad(0):rumbleRightFor(0.8,0.00012)
-					end
+	local rigidBody = eventData:getBody(CollisionArgsCallbackSource.A)
+	--[[
+	for i = 1, ENEMY_QUANTITY do
+		for k = 1, ENEMY_1_BULLETLIMIT do
+			if rigidBody:equals(enemy_1_array[i].bullets[k].rb) then
+
+				player.hp = player.hp - 10
+				enemy_1_array[i].bullets[k].currentLifeTime = BULLET_LIFETIME
+                local hpLenght = (player.hp/PLAYER_HP)*HEALTH_BAR_LENGTH
+                player.hb.rc:setScale(Vec3(5, -hpLenght, 0.1))
+                
+				--activate controller rumble motors
+				if(RUMBLE_ON == true) then
+					InputHandler:gamepad(0):rumbleLeftFor(0.8,0.00012)
+					InputHandler:gamepad(0):rumbleRightFor(0.8,0.00012)
 				end
 			end
 		end
-	end
-
+	end]]--
 	return EventResult.Handled
 end
 
@@ -89,7 +86,7 @@ function Player:init() -- : inserts metatable at args called 'self'
 
 	local cinfo = RigidBodyCInfo()
 	cinfo.shape = PhysicsFactory:createSphere(PLAYER_SIZE)
-	cinfo.position = Vec3(0, 0, 0)
+	cinfo.position = Vec3(1, 0, 0)
 	cinfo.mass = 1.5
 	cinfo.linearDamping = 7.0
 	cinfo.motionType = MotionType.Dynamic

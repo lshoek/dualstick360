@@ -6,7 +6,7 @@ include("dualstick360/utils.lua")
 Enemy_1 = {}
 Enemy_1.__index = Enemy_1
 
-ENEMY_1_SIZE = 2
+ENEMY_1_SIZE = 8
 
 ENEMY_1_BULLETLIMIT = 10 
 ENEMY_1_BULLETDELAY = 0.8
@@ -109,7 +109,7 @@ function Enemy_1:init(guid)
 	-- walking - State
 	self.walkingUpdate =  function(eventData)
 	
-		printText(self.go:getGuid() .. " hp: " .. self.hp)
+		--printText(self.go:getGuid() .. " hp: " .. self.hp)
 		local pos = self.go:getPosition()
 		
 		
@@ -135,7 +135,7 @@ function Enemy_1:init(guid)
 	-- attack_player - State
 	self.attack_playerUpdate =  function(eventData)
 	
-		printText(self.go:getGuid() .. " hp: " .. self.hp)
+		--printText(self.go:getGuid() .. " hp: " .. self.hp)
 		
 		local pos = self.go:getPosition()
 		if (pos.y < -50) then

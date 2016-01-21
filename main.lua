@@ -3,12 +3,14 @@ include("utils/stateMachine.lua")
 include("dualstick360/player.lua")
 include("dualstick360/bullet.lua")
 include("dualstick360/enemy_1.lua")
+include("dualstick360/enemy_2.lua")
 
 -- variables
 player = {}
 cam = GameObjectManager:createGameObject("Camera")
-ENEMY_1_QUANTITY = 3
+ENEMY_QUANTITY = 10
 enemy_1_array = {}
+enemy_2_array = {}
 
 GAME_OVER = false
 
@@ -27,13 +29,18 @@ function init()
 	player:init()
 	
 	--enemy_1
-	for i = 1, ENEMY_1_QUANTITY do
-		local e1 = Enemy_1.new()
-		e1:init("enemy_1_" .. i)
-		enemy_1_array[i] = e1
+	for i = 1, ENEMY_QUANTITY do
+		if (math.random(2) == 1) then
+			local e = Enemy_1.new()
+			e:init("enemy_1_" .. i)
+			enemy_1_array[i] = e
+		else
+			local e = Enemy_2.new()
+			e:init("enemy_2_" .. i)
+			enemy_2_array[i] = e
+		end
 	end
 	
-
 	--Events.PostInitialization:registerListener(addBulletConstraints)
 
 	-- world (block)
@@ -85,17 +92,13 @@ function init()
 	cam.lookDir = Vec3(0, 1, 0)
 	cam.cc:lookAt(cam.lookDir:mulScalar(2.5))
 	cam.cc:setState(ComponentState.Active)
-    
-    
 end
 
 function update(deltaTime)
 
     -- move camera
-    
     cam.cc:setPosition(Vec3(player.rb:getPosition().x, player.rb:getPosition().y, CAMERA_Z))
     hb:setPosition(Vec3((2/3)*CAMERA_Z + cam.cc:getPosition().x + 50, (4/15)*CAMERA_Z + cam.cc:getPosition().y -20, (2/15)*CAMERA_Z))
-    
     
 	if player.hp <= 0 then
 		GAME_OVER = true

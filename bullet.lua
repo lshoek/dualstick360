@@ -61,11 +61,11 @@ function Bullet:activateBullet(position, direction, speed)
 end
 
 function Bullet:update(f)
-	if (self.currentLifeTime >= BULLET_LIFETIME) then
+	if (self.currentLifeTime >= BULLET_LIFETIME or self.rb:getLinearVelocity():length() < 100) then
 		self:reset()
 	end
 	self.currentLifeTime = self.currentLifeTime + f
-	printText(self.go:getGuid() .. ": " .. self.rb:getPosition().x .. ", " .. self.rb:getPosition().y .. ", " .. self.rb:getPosition().z)
+	--printText(self.go:getGuid() .. ": " .. self.rb:getPosition().x .. ", " .. self.rb:getPosition().y .. ", " .. self.rb:getPosition().z)
 end
 
 function Bullet:reset(f)
