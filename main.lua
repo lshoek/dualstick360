@@ -4,12 +4,14 @@ include("dualstick360/player.lua")
 include("dualstick360/bullet.lua")
 include("dualstick360/enemy_1.lua")
 include("dualstick360/healthpack.lua")
+include("dualstick360/level1.lua")
 
 -- variables
 player = {}
 cam = GameObjectManager:createGameObject("Camera")
-ENEMY_1_QUANTITY = 3
-enemy_1_array = {}
+
+ENEMY_1_ARRAY = {}
+ENEMY_1_ARRAYSIZE = 0
 
 GAME_OVER = false
 
@@ -21,19 +23,15 @@ world = PhysicsFactory:createWorld(cinfo)
 world:setCollisionFilter(PhysicsFactory:createCollisionFilter_Simple())
 PhysicsSystem:setWorld(world)
 
+build_level_1()
+
+
 -- functions
 function init()
 	-- player
 	player = Player.new()
 	player:init()
-	
-	--enemy_1
-	for i = 1, ENEMY_1_QUANTITY do
-		local e1 = Enemy_1.new()
-		e1:init("enemy_1_" .. i)
-		enemy_1_array[i] = e1
-	end
-	
+		
 	--testHealthpack
 	
 	testhealthpack = HEALTHPACK.new()

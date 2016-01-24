@@ -1,5 +1,6 @@
 include("dualstick360/utils.lua")
 
+
 BULLET_LIFETIME = 2
 
 Bullet = {}
@@ -22,11 +23,11 @@ function bulletCollision(eventData)
 				return EventResult.Handled
 			--by other bullet
 			else
-				if(ridigBody_Bullet:getUserData().isActive == true) then
+				if(ridigBody_Bullet:getUserData().isHurting == true) then
 					player.hp = player.hp - 10
 					io.write("damageplayer\n")
 					healthbarupdate()
-					ridigBody_Bullet:getUserData().isActive = false
+					ridigBody_Bullet:getUserData().isHurting = false
 					ridigBody_Bullet:getUserData().currentLifeTime = BULLET_LIFETIME
 
 					--activate controller rumble motors
@@ -41,12 +42,12 @@ function bulletCollision(eventData)
 		end
 		
 		--enemy_1 gets hit
-		for i = 1, ENEMY_1_QUANTITY do
+		for i = 1, ENEMY_1_ARRAYSIZE do
 			
-			if rigidBody_Other:equals(enemy_1_array[i].rb) then
-				if(ridigBody_Bullet:getUserData().isActive == true) then
-					enemy_1_array[i].hp = enemy_1_array[i].hp - 1 
-					ridigBody_Bullet:getUserData().isActive = false
+			if rigidBody_Other:equals(ENEMY_1_ARRAY[i].rb) then
+				if(ridigBody_Bullet:getUserData().isHurting == true) then
+					ENEMY_1_ARRAY[i].hp = ENEMY_1_ARRAY[i].hp - 1 
+					ridigBody_Bullet:getUserData().isHurting = false
 					ridigBody_Bullet:getUserData().currentLifeTime = BULLET_LIFETIME
 					return EventResult.Handled
 				end
@@ -63,6 +64,7 @@ function Bullet:init(guid, fromPlayer,bullet_size)
 	self.currentLifeTime = 0
 	self.isActive = false
 	self.isConstrained = false
+	self.isHurting = true
 	self.fromPlayer = fromPlayer
 	self.physComp = self.go:createPhysicsComponent()
 	self.physComp:getContactPointEvent():registerListener(bulletCollision)
@@ -70,7 +72,7 @@ function Bullet:init(guid, fromPlayer,bullet_size)
 	local cinfo = RigidBodyCInfo()
 	cinfo.shape = PhysicsFactory:createSphere(bullet_size)
 	cinfo.position = Vec3(0, 0, 0)
-	cinfo.mass = 0.05
+	cinfo.mass = 0.09
 	cinfo.friction = 0
 	cinfo.linearDamping = 0
 	cinfo.motionType = MotionType.Dynamic
@@ -114,7 +116,7 @@ function Bullet:activateBullet(position, direction, speed)
 end
 
 function Bullet:update(f)
-	if (self.currentLifeTime >= BULLET_LIFETIME) then -- or self.rb:getLinearVelocity():length() < 70
+	if (self.currentLifeTime >= BULLET_LIFETIME) then
 		self:reset()
 	end
 	self.currentLifeTime = self.currentLifeTime + f
@@ -124,6 +126,7 @@ end
 function Bullet:reset(f)
 	self.currentLifeTime = 0
 	self.isActive = false
+	self.isHurting = true
 	self.rb:setPosition(Vec3(0, 0, 0))
 	self.rb:setLinearVelocity(Vec3(0, 0, 0))
 	self.rb:setAngularVelocity(Vec3(0, 0, 0))

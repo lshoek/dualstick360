@@ -10,13 +10,17 @@ ENEMY_1_SIZE = 2
 
 ENEMY_1_BULLETLIMIT = 10 
 ENEMY_1_BULLETDELAY = 1.5
-ENEMY_1_BULLETSPEED = 6
+ENEMY_1_BULLETSPEED = 8
 ENEMY_1_BULLETSIZE = 1
+
+ENEMY_1_TOWER_SIZE = 2
+ENEMY_1_BOUNCING_SIZE = 3
+ENEMY_1_MOVING_SIZE = 3
 
 ENEMY_1_HP = 3
 ENEMY_1_SCORE_VALUE = 10
 
-ENEMY_1_ATTACKDISTANCE = 30
+ENEMY_1_ATTACKDISTANCE = 80
 
 function Enemy_1.new()
 	local self = setmetatable({}, Enemy_1)
@@ -24,30 +28,65 @@ function Enemy_1.new()
 end
 
 
+function createEnemy_1_Moving(position, distance, clockwise,shootingDir)
+	ENEMY_1_ARRAYSIZE = ENEMY_1_ARRAYSIZE + 1
+	local e1 = Enemy_1.new()
+	e1:init("enemy_1_" .. ENEMY_1_ARRAYSIZE, position, distance, clockwise, true,false,shootingDir, ENEMY_1_MOVING_SIZE)
+	ENEMY_1_ARRAY[ENEMY_1_ARRAYSIZE] = e1
+end
 
-function Enemy_1:init(guid)
+function createEnemy_1_Tower(position,shootingDir)
+	ENEMY_1_ARRAYSIZE = ENEMY_1_ARRAYSIZE + 1
+	local e1 = Enemy_1.new()
+	e1:init("enemy_1_" .. ENEMY_1_ARRAYSIZE, position, 0, false, false,true,shootingDir, ENEMY_1_TOWER_SIZE)
+	ENEMY_1_ARRAY[ENEMY_1_ARRAYSIZE] = e1
+end
+
+function createEnemy_1_Bouncing(position,shootingDir)
+	ENEMY_1_ARRAYSIZE = ENEMY_1_ARRAYSIZE + 1
+	local e1 = Enemy_1.new()
+	e1:init("enemy_1_" .. ENEMY_1_ARRAYSIZE, position, 0, false, false, false,shootingDir, ENEMY_1_BOUNCING_SIZE)
+	ENEMY_1_ARRAY[ENEMY_1_ARRAYSIZE] = e1
+end
+
+
+
+--shootingDir
+--1 - Up
+--2 - Down
+--3 - Left
+--4 - Right
+--5 - Player
+
+function Enemy_1:init(guid, startPosition, walkingDistance, clockwise, moving, tower, shootingDir, size)
 	
 	
 	--gameobject
 	self.go = GameObjectManager:createGameObject("e1_" .. guid)
 	
-	--random spawning
-	random_xoffset = math.random(-40,40) + 20
-	random_yoffset = math.random(-40,40) + 20
-	
 	--physics component
 	self.physComp = self.go:createPhysicsComponent()
 
 	local cinfo = RigidBodyCInfo()
-	cinfo.shape = PhysicsFactory:createBox(Vec3(ENEMY_1_SIZE,ENEMY_1_SIZE,ENEMY_1_SIZE))
-	cinfo.position = Vec3(random_xoffset, random_yoffset, 0)
-	cinfo.mass = 0.5
-	cinfo.motionType = MotionType.Dynamic
+	cinfo.shape = PhysicsFactory:createBox(Vec3(size,size,size))
+	cinfo.position = startPosition
+	cinfo.mass = 0.4
+	if(tower == true) then
+		cinfo.motionType = MotionType.Fixed
+	else
+		cinfo.motionType = MotionType.Dynamic
+	end
 	cinfo.collisionFilterInfo = ENEMY_INFO
 
 	self.rb = self.physComp:createRigidBody(cinfo)
 	self.stateTimer = 0
+	self.startPos = startPosition;
+	self.walkDist = walkingDistance
 	self.moveLeft = false
+	self.moveUp = false
+	self.clockwise = clockwise
+	self.moving = moving
+	self.shootingDir = shootingDir
 	self.go:setComponentStates(ComponentState.Inactive)
 	self.rb:setUserData(self)
 	
@@ -56,7 +95,19 @@ function Enemy_1:init(guid)
 	
 	
 	--shooting variables
-	self.cursorDirection = Vec3(0, 0, 0)
+	if (self.shootingDir == 1) then
+		self.cursorDirection = Vec3(0,-1,0)
+	elseif(self.shootingDir == 2) then
+		self.cursorDirection = Vec3(0,1,0)
+	elseif(self.shootingDir == 3) then
+		self.cursorDirection = Vec3(-1,0,0)
+	elseif(self.shootingDir == 4) then
+		self.cursorDirection = Vec3(1,0,0)
+	else
+		self.cursorDirection = Vec3(0, 0, 0)
+	end
+	
+	
 	self.numBullets = 0
 	self.timeSinceLastShot = 0
 	self.bullets = {}
@@ -73,10 +124,10 @@ function Enemy_1:init(guid)
 	-- spawning - State
 	self.spawningEnter = function(eventData)
 
-		random_xoffset = math.random(-40, 40) + 20
-		random_yoffset = math.random(-40, 40) + 20
+		--random_xoffset = math.random(-40, 40) + 20
+		--random_yoffset = math.random(-40, 40) + 20
 		
-		self.rb:setPosition(Vec3((player.rb:getPosition().x + random_xoffset), (player.rb:getPosition().y + random_yoffset), 0.0))
+		--self.rb:setPosition(Vec3((player.rb:getPosition().x + random_xoffset), (player.rb:getPosition().y + random_yoffset), 0.0))
 		
 		self.hp = ENEMY_1_HP
 		
@@ -91,10 +142,71 @@ function Enemy_1:init(guid)
 	-- walking - State
 	self.walkingUpdate =  function(eventData)
 	
-		printText(self.go:getGuid() .. " hp: " .. self.hp)
-		local pos = self.go:getPosition()
 		
 		
+		if(self.moving == true) then
+		
+			printText(self.go:getGuid() .. " hp: " .. self.hp)
+			local pos = self.go:getPosition()
+			local startPos = self.startPos
+			local walkingDist = self.walkDist
+		
+			if(self.clockwise == true) then
+			
+				if(self.moveLeft == false and self.moveUp == false) then
+					self.rb:setLinearVelocity(Vec3(10, 0, 0))
+					if(pos.x > startPos.x + walkingDist) then
+						self.moveUp = true
+					end
+				elseif(self.moveLeft == false and self.moveUp == true) then
+					self.rb:setLinearVelocity(Vec3(0, 10, 0))
+					if(pos.y > startPos.y + walkingDist) then
+						self.moveLeft = true
+					end
+				elseif(self.moveLeft == true and self.moveUp == true) then
+					self.rb:setLinearVelocity(Vec3(-10, 0, 0))
+					if(pos.x < startPos.x) then
+						self.moveUp = false
+					end
+				elseif(self.moveLeft == true and self.moveUp == false) then
+					self.rb:setLinearVelocity(Vec3(0, -10, 0))
+					if(pos.y < startPos.y) then
+						self.moveLeft = false
+					end
+				end
+			
+			else
+				
+				if(self.moveLeft == false and self.moveUp == false) then
+					self.rb:setLinearVelocity(Vec3(0, -10, 0))
+					if(pos.y < startPos.y) then
+						self.moveLeft = true
+					end
+				elseif(self.moveLeft == false and self.moveUp == true) then
+					self.rb:setLinearVelocity(Vec3(10, 0, 0))
+					if(pos.x > startPos.x + walkingDist) then
+						self.moveUp = false
+					end
+				elseif(self.moveLeft == true and self.moveUp == true) then
+					self.rb:setLinearVelocity(Vec3(0, 10, 0))
+					if(pos.y > startPos.y + walkingDist) then
+						self.moveLeft = false
+					end
+				elseif(self.moveLeft == true and self.moveUp == false) then
+					self.rb:setLinearVelocity(Vec3(-10, 0, 0))
+					if(pos.x < startPos.x) then
+						self.moveUp = true
+					end
+				end
+				
+				
+			end
+			
+			self.rb:setAngularVelocity(Vec3(0, 0, 0))
+			self.stateTimer = self.stateTimer - eventData:getElapsedTime()
+		
+		end
+--[[		
 		if (pos.x < -50) then
 			self.moveLeft = false
 		elseif (pos.x > 50) then
@@ -105,9 +217,8 @@ function Enemy_1:init(guid)
 		else
 			self.rb:setLinearVelocity(Vec3(10, 0, 0))
 		end
-		self.rb:setAngularVelocity(Vec3(0, 0, 0))
-		self.stateTimer = self.stateTimer - eventData:getElapsedTime()
 		
+	]]--	
 		--keep on z axe
 		self.rb:setPosition(Vec3(self.rb:getPosition().x,self.rb:getPosition().y,0))
 		return EventResult.Handled
@@ -119,22 +230,79 @@ function Enemy_1:init(guid)
 	
 		printText(self.go:getGuid() .. " hp: " .. self.hp)
 		
-		local pos = self.go:getPosition()
-		if (pos.y < -50) then
-			self.moveLeft = false
-		elseif (pos.y > 50) then
-			self.moveLeft = true
-		end
-		if (self.moveLeft) then
-			self.rb:setLinearVelocity(Vec3(0, -10, 0))
-		else
-			self.rb:setLinearVelocity(Vec3(0, 10, 0))
-		end
-		self.rb:setAngularVelocity(Vec3(0, 0, 0))
-		self.stateTimer = self.stateTimer - eventData:getElapsedTime()
+		printText(self.go:getGuid() .. " hp: " .. self.hp)
 		
-		self.cursorDirection = Vec3(player.rb:getPosition().x - self.rb:getPosition().x,player.rb:getPosition().y - self.rb:getPosition().y,0):normalized()
+		if(self.moving == true) then
+			local pos = self.go:getPosition()
+			local startPos = self.startPos
+			local walkingDist = self.walkDist
+			
+			
+			if(self.clockwise == true) then
+			
+				if(self.moveLeft == false and self.moveUp == false) then
+					self.rb:setLinearVelocity(Vec3(10, 0, 0))
+					if(pos.x > startPos.x + walkingDist) then
+						self.moveUp = true
+					end
+				elseif(self.moveLeft == false and self.moveUp == true) then
+					self.rb:setLinearVelocity(Vec3(0, 10, 0))
+					if(pos.y > startPos.y + walkingDist) then
+						self.moveLeft = true
+					end
+				elseif(self.moveLeft == true and self.moveUp == true) then
+					self.rb:setLinearVelocity(Vec3(-10, 0, 0))
+					if(pos.x < startPos.x) then
+						self.moveUp = false
+					end
+				elseif(self.moveLeft == true and self.moveUp == false) then
+					self.rb:setLinearVelocity(Vec3(0, -10, 0))
+					if(pos.y < startPos.y) then
+						self.moveLeft = false
+					end
+				end
+			
+			else
+				
+				if(self.moveLeft == false and self.moveUp == false) then
+					self.rb:setLinearVelocity(Vec3(0, -10, 0))
+					if(pos.y < startPos.y) then
+						self.moveLeft = true
+					end
+				elseif(self.moveLeft == false and self.moveUp == true) then
+					self.rb:setLinearVelocity(Vec3(10, 0, 0))
+					if(pos.x > startPos.x + walkingDist) then
+						self.moveUp = false
+					end
+				elseif(self.moveLeft == true and self.moveUp == true) then
+					self.rb:setLinearVelocity(Vec3(0, 10, 0))
+					if(pos.y > startPos.y + walkingDist) then
+						self.moveLeft = false
+					end
+				elseif(self.moveLeft == true and self.moveUp == false) then
+					self.rb:setLinearVelocity(Vec3(-10, 0, 0))
+					if(pos.x < startPos.x) then
+						self.moveUp = true
+					end
+				end
+				
+				
+			end
+			
+			self.rb:setAngularVelocity(Vec3(0, 0, 0))
+			self.stateTimer = self.stateTimer - eventData:getElapsedTime()
+		
+		end
+		
+		
+		if(self.shootingDir == 5) then
+			self.cursorDirection = Vec3(player.rb:getPosition().x - self.rb:getPosition().x,player.rb:getPosition().y - self.rb:getPosition().y,0):normalized()
+		end
+
+		
 		DebugRenderer:drawArrow(self.rb:getPosition(), self.rb:getPosition() + self.cursorDirection:mulScalar(ENEMY_1_SIZE*2))
+		
+		
 		
 		--keep on z axe
 		self.rb:setPosition(Vec3(self.rb:getPosition().x,self.rb:getPosition().y,0))
