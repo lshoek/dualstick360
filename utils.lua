@@ -37,3 +37,23 @@ function calcAngleBetween(vector1, vector2)
 	end
 	return angleDeg
 end
+
+function rotateVector(vector, axis, angle)
+	local rotQuat = Quaternion(axis, angle)
+	local rotMat = rotQuat:toMat3()
+	local rotVector = rotMat:mulVec3(vector)
+	return rotVector
+end
+function calcSteering(self, targetDir)
+	local rightVec = self.go:getRightDirection()
+	local steer = rightVec:dot(targetDir)
+	local crossRightMove = rightVec:cross(targetDir)
+	if (crossRightMove.z < 0) then
+		if (steer < 0) then
+			steer = -1
+		else
+			steer = 1
+		end
+	end
+	return steer
+end	

@@ -2,12 +2,13 @@ dualstick360 tasks
 
 	willy (wminet)
 		doing
-			enemy polishing
+			try out some traps/puzzles
 
 		done
 			shield implementation
 			basic enemies
-			shield implementation
+			polished basic enemys 
+			healthpack
 
 
 	lesley (lshoek)
@@ -24,13 +25,21 @@ dualstick360 tasks
 
 	norbert (ns079)
 		doing
-			camera
+			texturing
 		done
-			health/damage
+			level1(floor plan)
+			healthbar
+			camera
+			
 
 to-do
 
-	camera
+	position enemies on map
+	
 	power-ups/multiple weapons
-	dual-stick steering
 	assign different colors to entities
+	
+	track player in level/roomdetection (good for performence and traps)
+	performance improvements
+	maybe traps in the level
+	bossfight

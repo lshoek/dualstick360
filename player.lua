@@ -5,24 +5,21 @@ PLAYER_SIZE = 5
 PLAYER_MAXSPEED = 50
 PLAYER_BULLETLIMIT = 25
 PLAYER_BULLETDELAY = 0.13
+
 PLAYER_BULLETSPEED = 6000
 PLAYER_BULLETSIZE = 2
 PLAYER_MINIMUMPUSH = 0.05
-
 
 CAMERA_Z = -150
 PLAYER_SHIELDDISTANCE = 2.1 * PLAYER_SIZE
 PLAYER_SHIELDDISTANCE_SIDE = 2 * PLAYER_SIZE * 1.05
 PLAYER_SHIELDRESTITUTION = 1.0
 
-
 RUMBLE_ON = true
 
 PLAYER_HP = 100
-HEALTH_BAR_LENGTH = 50      -- -(1/3) * CAMERA_Z 
-HEALTH_BAR_WIDTH = 5        -- -(1/30) * CAMERA_Z 
-
-
+HEALTH_BAR_LENGTH = 50   -- -(1/3) * CAMERA_Z 
+HEALTH_BAR_WIDTH = 5     -- -(1/30) * CAMERA_Z 
 
 Player = {}
 Player.__index = Player
@@ -34,10 +31,8 @@ function Player.new()
 end
 
 function healthbarupdate()
-
 	local hpLenght = (player.hp/PLAYER_HP)*HEALTH_BAR_LENGTH
 	player.hb.rc:setScale(Vec3(5, -hpLenght, 0.1))
-	
 end
 
 function Player:init() -- : inserts metatable at args called 'self'
@@ -71,7 +66,7 @@ function Player:init() -- : inserts metatable at args called 'self'
 
 	local cinfo = RigidBodyCInfo()
 	cinfo.shape = PhysicsFactory:createSphere(PLAYER_SIZE)
-	cinfo.position = Vec3(0, 0, 0)
+	cinfo.position = Vec3(1, 0, 0)
 	cinfo.mass = 1.5
 	cinfo.linearDamping = 7.0
 	cinfo.motionType = MotionType.Dynamic
@@ -244,8 +239,6 @@ function Player:update(f)
 			shield_l.rb:setPosition(self.rb:getPosition().x + v.x*PLAYER_SHIELDDISTANCE_SIDE,self.rb:getPosition().y + v.y*PLAYER_SHIELDDISTANCE_SIDE, 0)
 			shieldrotation_deg = calcAngleBetween(Vec3(0,1,0),self.cursorDirection)
 			shield_l.rb:setRotation(Quaternion(Vec3(0,0,1),shieldrotation_deg-45))
-			
-			
 		else
 			shield.go:setComponentStates(ComponentState.Inactive)
 			shield_l.go:setComponentStates(ComponentState.Inactive)
@@ -268,15 +261,6 @@ function Player:update(f)
 			self.timeSinceLastShot = self.timeSinceLastShot + f
 		end
 		
-		-- update active bullets
-		local activeBullets = 0
-		for _, b in ipairs(self.bullets) do
-			if (b.isActive) then
-				b:update(f)
-				activeBullets = activeBullets + 1
-			end
-		end
-		
 		--keep on z axe
 		self.rb:setPosition(Vec3(self.rb:getPosition().x,self.rb:getPosition().y,0))
 		
@@ -288,7 +272,6 @@ function Player:update(f)
 		printText("self.leftstickAngle:" .. self.leftStickAngle)
 		printText("self.rightstickAngle:" .. self.rightStickAngle)
 		printText("self.leftStickPush:" .. self.leftStickPush)
-		printText("self.rightStickPush:" .. self.rightStickPush)
-		printText("active bullets:" .. activeBullets)	
+		printText("self.rightStickPush:" .. self.rightStickPush)	
 		printText("rightTriggerValue: " .. rightTrigger) 
 end

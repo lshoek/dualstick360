@@ -6,13 +6,15 @@ Enemy_2 = {}
 Enemy_2.__index = Enemy_2
 
 ENEMY_2_SIZE = 5
+ENEMY_2_SPEED = 20
+ENEMY_2_ROTATIONSPEED = 5
 ENEMY_2_BULLETLIMIT = 10
 ENEMY_2_BULLETDELAY = 0.8
-ENEMY_2_BULLETSPEED = 6
-ENEMY_2_BULLETSIZE = 1
+ENEMY_2_BULLETSPEED = 4
+ENEMY_2_BULLETSIZE = 3
 ENEMY_2_HP = 10
 ENEMY_2_SCORE_VALUE = 10
-ENEMY_2_ATTACKDISTANCE = 60
+ENEMY_2_ATTACKDISTANCE = 100
 
 function Enemy_2.new()
 	local self = setmetatable({}, Enemy_2)
@@ -20,20 +22,22 @@ function Enemy_2.new()
 end
 
 function Enemy_2:init(guid)
-
 	self.go = GameObjectManager:createGameObject("e2_" .. guid)
-	random_xoffset = math.random(-80, 80) + 20
-	random_yoffset = math.random(-80, 80) + 20
+	self.go:setBaseViewDirection(Vec3(0, -1, 0):normalized())
 	
 	-- physics component
 	self.physComp = self.go:createPhysicsComponent()
 
 	local cinfo = RigidBodyCInfo()
-	cinfo.shape = PhysicsFactory:createBox(Vec3(ENEMY_1_SIZE,ENEMY_1_SIZE,ENEMY_1_SIZE))
-	cinfo.position = Vec3(random_xoffset, random_yoffset, 0)
-	cinfo.mass = 0.5
+	cinfo.shape = PhysicsFactory:createBox(Vec3(ENEMY_2_SIZE, ENEMY_2_SIZE, ENEMY_2_SIZE))
+	cinfo.position = Vec3(0, 0, 0)
+	cinfo.mass = 5
 	cinfo.motionType = MotionType.Dynamic
 	cinfo.collisionFilterInfo = ENEMY_INFO
+	cinfo.restitution = 0
+	cinfo.friction = 0
+	cinfo.linearDamping = 2.5
+	cinfo.angularDamping = 1
 
 	self.rb = self.physComp:createRigidBody(cinfo)
 	self.stateTimer = 0
@@ -44,180 +48,124 @@ function Enemy_2:init(guid)
 	--healthpoints
 	self.hp = 0
 	
-	
 	--shooting variables
-	self.cursorDirection = Vec3(0, 0, 0)
 	self.numBullets = 0
 	self.timeSinceLastShot = 0
 	self.bullets = {}
 	
 	-- init bullets
-	for i = 1, ENEMY_1_BULLETLIMIT do
+	for i = 1, ENEMY_2_BULLETLIMIT do
 		local b = Bullet.new(i)
-		b:init(guid .. i, false, ENEMY_1_BULLETSIZE)
+		b:init(guid .. i, true, ENEMY_2_BULLETSIZE)
 		self.bullets[i] = b
 	end
 	
-	-- Update Statemachine -- Update Functions
-	
+	-- STATEMACHINE UPDATE
+
 	-- collision event
 	self.Bullet_collision = function(eventData)
 		local rigidBody = eventData:getBody(CollisionArgsCallbackSource.A)
-	
 		for i=1, PLAYER_BULLETLIMIT do
 			if rigidBody:equals(player.bullets[i].rb) then
 				self.hp = self.hp - 1			
 			end
 		end
-	
 		return EventResult.Handled
-
 	end
-
 	self.physComp:getContactPointEvent():registerListener(self.Bullet_collision)
-	
-	
 	
 	-- spawning - State
 	self.spawningEnter = function(eventData)
-
-		random_xoffset = math.random(-40, 40) + 20
-		random_yoffset = math.random(-40, 40) + 20
-		
+		random_xoffset = math.random(-160, 160) + 20
+		random_yoffset = math.random(-160, 160) + 20
 		self.rb:setPosition(Vec3((player.rb:getPosition().x + random_xoffset), (player.rb:getPosition().y + random_yoffset), 0.0))
-		
-		self.hp = ENEMY_1_HP
-		
+		self.hp = ENEMY_2_HP
 		self.go:setComponentStates(ComponentState.Active)
-		
-		
 		return EventResult.Handled
 	end
 	
-	
-	
-	-- walking - State
-	self.walkingUpdate =  function(eventData)
-	
-		printText(self.go:getGuid() .. " hp: " .. self.hp)
-		local pos = self.go:getPosition()
-		
-		
-		if (pos.x < -50) then
-			self.moveLeft = false
-		elseif (pos.x > 50) then
-			self.moveLeft = true
-		end
-		if (self.moveLeft) then
-			self.rb:setLinearVelocity(Vec3(-10, 0, 0))
-		else
-			self.rb:setLinearVelocity(Vec3(10, 0, 0))
-		end
-		self.rb:setAngularVelocity(Vec3(0, 0, 0))
+	-- walking
+	self.walkingUpdate = function(eventData)
+		-- do nothing
+		self.rb:setPosition(Vec3(self.rb:getPosition().x, self.rb:getPosition().y, 0))
 		self.stateTimer = self.stateTimer - eventData:getElapsedTime()
 		return EventResult.Handled
 	end
 	
-	
-	-- attack_player - State
+	-- attack_player
 	self.attack_playerUpdate =  function(eventData)
-	
-		printText(self.go:getGuid() .. " hp: " .. self.hp)
-		
-		local pos = self.go:getPosition()
-		if (pos.y < -50) then
-			self.moveLeft = false
-		elseif (pos.y > 50) then
-			self.moveLeft = true
+		local targetDirection = Vec3(player.rb:getPosition() - self.rb:getPosition())
+		local viewDirection = self.go:getViewDirection()
+		local distance = targetDirection:length()
+		if (distance > 10) then
+			local steer = calcSteering(self, targetDirection:normalized())
+			local rotationSpeed = ENEMY_2_ROTATIONSPEED * -steer
+			self.rb:applyLinearImpulse(viewDirection:mulScalar(ENEMY_2_SPEED))
+			self.rb:setAngularVelocity(Vec3(0, 0, rotationSpeed))
 		end
-		if (self.moveLeft) then
-			self.rb:setLinearVelocity(Vec3(0, -10, 0))
-		else
-			self.rb:setLinearVelocity(Vec3(0, 10, 0))
-		end
-		self.rb:setAngularVelocity(Vec3(0, 0, 0))
+		DebugRenderer:drawArrow(self.rb:getPosition(), self.rb:getPosition() + viewDirection:mulScalar(10))
+
+		self.rb:setPosition(Vec3(self.rb:getPosition().x, self.rb:getPosition().y, 0))
 		self.stateTimer = self.stateTimer - eventData:getElapsedTime()
-		
-		self.cursorDirection = Vec3(player.rb:getPosition().x - self.rb:getPosition().x,player.rb:getPosition().y - self.rb:getPosition().y,0):normalized()
-		DebugRenderer:drawArrow(self.rb:getPosition(), self.rb:getPosition() + self.cursorDirection:mulScalar(ENEMY_1_SIZE*2))
-		
-		
 		
 		-- shoot bullets
-		if(self.timeSinceLastShot>ENEMY_1_BULLETDELAY) then
+		if (self.timeSinceLastShot >= ENEMY_2_BULLETDELAY) then
 			for _, b in ipairs(self.bullets) do
+				printText("b")
 				if not (b.isActive) then
-					b:activateBullet(self.rb:getPosition() + self.cursorDirection:mulScalar(ENEMY_1_SIZE*2), self.cursorDirection, ENEMY_1_BULLETSPEED)
+					b:activateBullet(self.rb:getPosition(), targetDirection, ENEMY_2_BULLETSPEED)
 					break
 				end
 			end
 			self.timeSinceLastShot = 0
-		
 		end
 		
 		-- enable delay between shots
-		if (self.timeSinceLastShot < ENEMY_1_BULLETDELAY) then
+		if (self.timeSinceLastShot < ENEMY_2_BULLETDELAY) then
 			self.timeSinceLastShot = self.timeSinceLastShot + eventData:getElapsedTime()
 		end
-
-		-- update active bullets
-		local activeBullets = 0
-		for _, b in ipairs(self.bullets) do
-			if (b.isActive) then
-				b:update(eventData:getElapsedTime())
-				activeBullets = activeBullets + 1
-			end
-		end
-		
-		
-		
 		return EventResult.Handled
 	end
 	
-	--attack condition
-	
+	-- attack condition
 	self.attack_playerCondition = function(eventData)
-	
-		local x_distanceToPlayer = math.abs(player.rb:getPosition().x - self.rb:getPosition().x) 
-		local y_distanceToPlayer = math.abs(player.rb:getPosition().y - self.rb:getPosition().y) 
-		
-		if((x_distanceToPlayer < ENEMY_1_ATTACKDISTANCE and y_distanceToPlayer < ENEMY_1_ATTACKDISTANCE) or self.hp < ENEMY_1_HP )then
+		local distanceToPlayer = player.rb:getPosition() - self.rb:getPosition()
+		if (distanceToPlayer:length() < ENEMY_2_ATTACKDISTANCE or self.hp < ENEMY_2_HP) then
 			return true
 		else
 			return false
-		end
-		
+		end		
+	end
+
+	-- walk condition
+	self.walkCondition = function(eventData)
+		local distanceToPlayer = player.rb:getPosition() - self.rb:getPosition()
+		if (distanceToPlayer:length() > ENEMY_2_ATTACKDISTANCE) then
+			return true
+		else
+			return false
+		end		
 	end
 	
-	
-	-- dead -State
-	
+	-- dead
 	self.deadEnter = function(eventData)
-		
-		player.score = player.score + ENEMY_1_SCORE_VALUE
-		
+		player.score = player.score + ENEMY_2_SCORE_VALUE
 		for _, b in ipairs(self.bullets) do
 			if (b.isActive) then
 				b:reset()
 			end
 		end
-		
 		self.go:setComponentStates(ComponentState.Inactive)
-		
 		return EventResult.Handled
-	
 	end
 	
 	-- dead condition
-	
 	self.deadCondition = function(eventData)
-		
 		if(self.hp <= 0) or (InputHandler:wasTriggered(Key.K)) then
 			return true
 		else
 			return false
-		end
-		
+		end	
 	end
 	
 	--StateMachine	
@@ -237,7 +185,6 @@ function Enemy_2:init(guid)
 			{
 				name = "walking",
 				eventListeners = {
-		
 					update = { 
 						self.walkingUpdate 
 					}	
@@ -246,7 +193,6 @@ function Enemy_2:init(guid)
 			{
 				name = "attack_player",
 				eventListeners = {
-		
 					update = {
 						self.attack_playerUpdate
 					}
@@ -263,7 +209,7 @@ function Enemy_2:init(guid)
 			{ from = "__enter", to = "spawning"},
 			{ from = "spawning", to = "walking"},
 			{ from = "walking", to = "attack_player", condition = self.attack_playerCondition},
-			{ from = "attack_player", to = "walking", condition = function() return InputHandler:wasTriggered(Key.O) end},
+			{ from = "attack_player", to = "walking", condition = self.walkCondition},
 			{ from = "walking", to ="dead", condition = self.deadCondition},
 			{ from = "attack_player", to = "dead", condition = self.deadCondition},
 			{ from = "dead", to = "spawning", condition = function() return InputHandler:wasTriggered(Key.R) end}	

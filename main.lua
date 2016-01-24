@@ -5,6 +5,8 @@ include("dualstick360/bullet.lua")
 include("dualstick360/enemy_1.lua")
 include("dualstick360/healthpack.lua")
 include("dualstick360/level1.lua")
+include("dualstick360/enemy_2.lua")
+
 
 -- variables
 player = {}
@@ -12,6 +14,10 @@ cam = GameObjectManager:createGameObject("Camera")
 
 ENEMY_1_ARRAY = {}
 ENEMY_1_ARRAYSIZE = 0
+
+ENEMY_2_QUANTITY = 5
+enemy_2_array = {}
+
 
 GAME_OVER = false
 
@@ -28,12 +34,18 @@ build_level_1()
 
 -- functions
 function init()
-	-- player
+	-- init player
 	player = Player.new()
 	player:init()
-		
-	--testHealthpack
+
+	-- init enemy_2
+	for i = 1, ENEMY_2_QUANTITY do
+		local e = Enemy_2.new()
+		e:init("enemy_2_" .. i)
+		enemy_2_array[i] = e
+	end
 	
+	-- testHealthpack
 	testhealthpack = HEALTHPACK.new()
 	testhealthpack:init("testpack", Vec3(-50,0,0))
 	--world	
@@ -89,18 +101,14 @@ function init()
 	cam.lookDir = Vec3(0, 1, 0)
 	cam.cc:lookAt(cam.lookDir:mulScalar(2.5))
 	cam.cc:setState(ComponentState.Active)
-    
-    
 end
 
 function update(deltaTime)
-
     -- move camera
-    
     cam.cc:setPosition(Vec3(player.rb:getPosition().x, player.rb:getPosition().y, CAMERA_Z))
     hb:setPosition(Vec3((2/3)*CAMERA_Z + cam.cc:getPosition().x + 50, (4/15)*CAMERA_Z + cam.cc:getPosition().y -20, (2/15)*CAMERA_Z))
     
-    
+    -- check hp
 	if player.hp <= 0 then
 		GAME_OVER = true
 	end
@@ -108,6 +116,28 @@ function update(deltaTime)
 	-- update gameobjects
 	if not GAME_OVER then
 		player:update(deltaTime)
+
+		for _, b in ipairs(player.bullets) do
+			if (b.isActive) then
+				b:update(deltaTime)
+			end
+		end
+
+		for _, e in ipairs(ENEMY_1_ARRAY) do
+			for _, b in ipairs(e.bullets) do
+				if (b.isActive) then
+					b:update(deltaTime)
+				end
+			end
+		end
+
+		for _, e in ipairs(enemy_2_array) do
+			for _, b in ipairs(e.bullets) do
+				if (b.isActive) then
+					b:update(deltaTime)
+				end
+			end
+		end
 	else
 		DebugRenderer:printText(Vec2(-0.1, 0.5), "GAME OVER")
 		DebugRenderer:printText(Vec2(-0.15, 0.45), "Press Return to Restart")

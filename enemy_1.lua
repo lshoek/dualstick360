@@ -6,8 +6,7 @@ include("dualstick360/utils.lua")
 Enemy_1 = {}
 Enemy_1.__index = Enemy_1
 
-ENEMY_1_SIZE = 2
-
+ENEMY_1_SIZE = 8
 ENEMY_1_BULLETLIMIT = 10 
 ENEMY_1_BULLETDELAY = 1.5
 ENEMY_1_BULLETSPEED = 8
@@ -19,8 +18,8 @@ ENEMY_1_MOVING_SIZE = 3
 
 ENEMY_1_HP = 3
 ENEMY_1_SCORE_VALUE = 10
-
 ENEMY_1_ATTACKDISTANCE = 80
+
 
 function Enemy_1.new()
 	local self = setmetatable({}, Enemy_1)
@@ -141,8 +140,6 @@ function Enemy_1:init(guid, startPosition, walkingDistance, clockwise, moving, t
 	
 	-- walking - State
 	self.walkingUpdate =  function(eventData)
-	
-		
 		
 		if(self.moving == true) then
 		
@@ -228,7 +225,7 @@ function Enemy_1:init(guid, startPosition, walkingDistance, clockwise, moving, t
 	-- attack_player - State
 	self.attack_playerUpdate =  function(eventData)
 	
-		printText(self.go:getGuid() .. " hp: " .. self.hp)
+		--printText(self.go:getGuid() .. " hp: " .. self.hp)
 		
 		printText(self.go:getGuid() .. " hp: " .. self.hp)
 		
@@ -323,19 +320,7 @@ function Enemy_1:init(guid, startPosition, walkingDistance, clockwise, moving, t
 		-- enable delay between shots
 		if (self.timeSinceLastShot < ENEMY_1_BULLETDELAY) then
 			self.timeSinceLastShot = self.timeSinceLastShot + eventData:getElapsedTime()
-		end
-
-		-- update active bullets
-		local activeBullets = 0
-		for _, b in ipairs(self.bullets) do
-			if (b.isActive) then
-				b:update(eventData:getElapsedTime())
-				activeBullets = activeBullets + 1
-			end
-		end
-		
-		
-		
+		end		
 		return EventResult.Handled
 	end
 	
