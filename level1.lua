@@ -114,10 +114,12 @@ function build_level_1()
     createRotatedBox(levelobj, Vec3(35, 35, 15), Vec3(-90, -690, 0),Quaternion(Vec3(0,0,1),40))
 	
     --createEnemy(position, behaviourType, size, distance, clockwise, shootingDir)
-	createEnemy(Vec3(-80, -80, 0),  ENEMY_BEHAVIOURTYPE_STALKER, 100, true, ENEMY_SHOOTINGDIR_PLAYER)
-	createEnemy(Vec3(-80, -150, 0), ENEMY_BEHAVIOURTYPE_STALKER, 100, true, ENEMY_SHOOTINGDIR_PLAYER)
-	createEnemy(Vec3(-90, -150, 0), ENEMY_BEHAVIOURTYPE_STALKER, 100, true, ENEMY_SHOOTINGDIR_PLAYER)
-	createEnemy(Vec3(-70, -150, 0), ENEMY_BEHAVIOURTYPE_TOWER,   100, true, ENEMY_SHOOTINGDIR_PLAYER)
+	createEnemy(Vec3(-80, -80, 0),     ENEMY_BEHAVIOURTYPE_STALKER, ENEMY_SIZE, 100, true, ENEMY_SHOOTINGDIR_PLAYER)
+	createEnemy(Vec3(-80, -150, 0),    ENEMY_BEHAVIOURTYPE_STALKER, ENEMY_SIZE, 100, true, ENEMY_SHOOTINGDIR_PLAYER)
+	createEnemy(Vec3(-90, -150, 0),    ENEMY_BEHAVIOURTYPE_STALKER, ENEMY_SIZE, 100, true, ENEMY_SHOOTINGDIR_PLAYER)
+	createEnemy(Vec3(-70, -150, 0),    ENEMY_BEHAVIOURTYPE_TOWER, ENEMY_SIZE, 100, true, ENEMY_SHOOTINGDIR_PLAYER)
+    createEnemy(Vec3(-80, -180, 0),    ENEMY_BEHAVIOURTYPE_MOVE, ENEMY_SIZE, 100, true, ENEMY_SHOOTINGDIR_PLAYER)
+    createEnemy(Vec3(120, -120, 0),    ENEMY_BEHAVIOURTYPE_BOSS, 40, 100, true, ENEMY_SHOOTINGDIR_PLAYER)
 	
 	local pos_y = -1030
 	for i = 1, 5 do

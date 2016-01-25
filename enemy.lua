@@ -22,6 +22,7 @@ ENEMY_BEHAVIOURTYPE_MOVE = 0
 ENEMY_BEHAVIOURTYPE_TOWER = 1
 ENEMY_BEHAVIOURTYPE_BOUNCE = 2
 ENEMY_BEHAVIOURTYPE_STALKER = 3
+ENEMY_BEHAVIOURTYPE_BOSS = 9
 
 -- shooting directions
 ENEMY_SHOOTINGDIR_UP = 0
@@ -35,20 +36,21 @@ function Enemy.new()
 	return self
 end
 
-function createEnemy(position, behaviourType, distance, clockwise, shootingDir)
+function createEnemy(position, behaviourType, size, distance, clockwise, shootingDir)
 	local e = Enemy.new()
 	ENEMY_ARRAYSIZE = ENEMY_ARRAYSIZE + 1
-	e:init("e" .. ENEMY_ARRAYSIZE, position, behaviourType, distance, clockwise, shootingDir)
+	e:init("e" .. ENEMY_ARRAYSIZE, position, behaviourType, size, distance, clockwise, shootingDir)
 	ENEMY_ARRAY[ENEMY_ARRAYSIZE] = e
 end
 
-function Enemy:init(guid, startPosition, behaviourType, walkingDistance, clockwise, shootingDir)
+function Enemy:init(guid, startPosition, behaviourType, size, walkingDistance, clockwise, shootingDir)
+	-- just defaults
 	self.go = GameObjectManager:createGameObject(guid)
 	self.go:setBaseViewDirection(Vec3(0, -1, 0):normalized())
 	self.physComp = self.go:createPhysicsComponent()
 
 	local cinfo = RigidBodyCInfo()
-	cinfo.shape = PhysicsFactory:createBox(Vec3(ENEMY_SIZE, ENEMY_SIZE, ENEMY_SIZE))
+	cinfo.shape = PhysicsFactory:createBox(Vec3(size, size, size))
 	cinfo.position = startPosition
 	cinfo.mass = 1
 	cinfo.linearDamping = 2.5
@@ -57,9 +59,6 @@ function Enemy:init(guid, startPosition, behaviourType, walkingDistance, clockwi
 	cinfo.friction = 0
 	cinfo.collisionFilterInfo = ENEMY_INFO
 	cinfo.motionType = MotionType.Dynamic
-	if(behaviourType == ENEMY_BEHAVIOURTYPE_TOWER) then
-		cinfo.motionType = MotionType.Fixed
-	end
 
 	-- store parameters
 	self.startPos = startPosition
@@ -69,7 +68,15 @@ function Enemy:init(guid, startPosition, behaviourType, walkingDistance, clockwi
 	self.shootingDir = shootingDir
 
 	-- other variables
-	self.hp = 0
+	self.size = size
+	self.hp = ENEMY_HP
+	self.speed = ENEMY_SPEED
+	self.bulletLimit = ENEMY_BULLETLIMIT
+	self.bulletDelay = ENEMY_BULLETDELAY
+	self.bulletSpeed = ENEMY_BULLETSPEED
+	self.bulletSize = ENEMY_BULLETSIZE
+	self.scoreValue = ENEMY_SCORE_VALUE
+
 	self.stateTimer = 0
 	self.moveLeft = false
 	self.moveUp = false
@@ -81,6 +88,21 @@ function Enemy:init(guid, startPosition, behaviourType, walkingDistance, clockwi
 	self.rb = self.physComp:createRigidBody(cinfo)
 	self.go:setComponentStates(ComponentState.Inactive)
 	self.rb:setUserData(self)
+
+	-- specific behaviour types (overwrite defaults)
+	if(behaviourType == ENEMY_BEHAVIOURTYPE_TOWER) then
+		cinfo.motionType = MotionType.Fixed
+	end
+	if(behaviourType == ENEMY_BEHAVIOURTYPE_BOSS) then
+		cinfo.mass = 20
+		self.hp = 1000
+		self.speed = 2
+		self.bulletLimit = 100
+		self.bulletDelay = 0.075
+		self.bulletSpeed = 10
+		self.bulletSize = 2
+		self.scoreValue = 1000
+	end
 	
 	-- shooting direction
 	self.targetDirection = Vec3(0, 0, 0)
@@ -95,15 +117,14 @@ function Enemy:init(guid, startPosition, behaviourType, walkingDistance, clockwi
 	end
 	
 	-- init bullets
-	for i = 1, ENEMY_BULLETLIMIT do
+	for i = 1, self.bulletLimit do
 		local b = Bullet.new(i)
-		b:init(guid .. i, false, ENEMY_BULLETSIZE)
+		b:init(guid .. i, false, self.bulletSize)
 		self.bullets[i] = b
 	end
 	
 	-- spawning - State
 	self.spawningEnter = function(eventData)
-		self.hp = ENEMY_HP
 		self.go:setComponentStates(ComponentState.Active)
 		return EventResult.Handled
 	end
@@ -234,26 +255,45 @@ function Enemy:init(guid, startPosition, behaviourType, walkingDistance, clockwi
 			if (distance > 10) then
 				local steer = calcSteering(self, self.targetDirection:normalized())
 				local rotationSpeed = ENEMY_ROTATIONSPEED * -steer
-				self.rb:applyLinearImpulse(viewDirection:mulScalar(ENEMY_SPEED))
+				self.rb:applyLinearImpulse(viewDirection:mulScalar(self.speed))
 				self.rb:setAngularVelocity(Vec3(0, 0, rotationSpeed))
 			end
+			DebugRenderer:drawArrow(self.rb:getPosition(), self.rb:getPosition() + viewDirection:mulScalar(10))
+
+		elseif (self.behaviourType == ENEMY_BEHAVIOURTYPE_BOSS) then
+			local viewDirection = self.go:getViewDirection()
+			local steer = calcSteering(self, self.targetDirection:normalized())
+			local rotationSpeed = ENEMY_ROTATIONSPEED * -steer
+			self.rb:setAngularVelocity(Vec3(0, 0, rotationSpeed))
 			DebugRenderer:drawArrow(self.rb:getPosition(), self.rb:getPosition() + viewDirection:mulScalar(10))
 		end
 		
 		-- shoot bullets
-		if (self.timeSinceLastShot > ENEMY_BULLETDELAY) then
-			for _, b in ipairs(self.bullets) do
-				if not (b.isActive) then
-					local normalTargetdir = self.targetDirection:normalized()
-					b:activateBullet(self.rb:getPosition() + normalTargetdir:mulScalar(ENEMY_SIZE*2), normalTargetdir, ENEMY_BULLETSPEED)
-					break
+		if (self.timeSinceLastShot > self.bulletDelay) then
+			if not (self.behaviourType == ENEMY_BEHAVIOURTYPE_BOSS) then
+				for _, b in ipairs(self.bullets) do
+					if not (b.isActive) then
+						local normalTargetDir = self.targetDirection:normalized()
+						b:activateBullet(self.rb:getPosition() + normalTargetDir:mulScalar(self.size*2), normalTargetDir, self.bulletSpeed)
+						break
+					end
 				end
+				self.timeSinceLastShot = 0
+			else
+				for _, b in ipairs(self.bullets) do
+					if not (b.isActive) then
+						local normalTargetDir = self.targetDirection:normalized()
+						normalTargetDir = rotateVector(normalTargetDir, Vec3(0, 0, 1), math.random(-20, 20))
+						b:activateBullet(self.rb:getPosition() + normalTargetDir:mulScalar(self.size*1.2), normalTargetDir, self.bulletSpeed)
+						break
+					end
+				end
+				self.timeSinceLastShot = 0
 			end
-			self.timeSinceLastShot = 0
 		end
 		
 		-- enable delay between shots
-		if (self.timeSinceLastShot < ENEMY_BULLETDELAY) then
+		if (self.timeSinceLastShot < self.bulletDelay) then
 			self.timeSinceLastShot = self.timeSinceLastShot + eventData:getElapsedTime()
 		end		
 
@@ -267,7 +307,7 @@ function Enemy:init(guid, startPosition, behaviourType, walkingDistance, clockwi
 	-- attack condition
 	self.attack_playerCondition = function(eventData)
 		local distanceToPlayer = (player.rb:getPosition() - self.rb:getPosition()):length()
-		if (distanceToPlayer < ENEMY_ATTACKDISTANCE or self.hp < ENEMY_HP ) then
+		if (distanceToPlayer < ENEMY_ATTACKDISTANCE) then
 			return true
 		else
 			return false
@@ -286,7 +326,7 @@ function Enemy:init(guid, startPosition, behaviourType, walkingDistance, clockwi
 	
 	-- death - State
 	self.deadEnter = function(eventData)
-		player.score = player.score + ENEMY_SCORE_VALUE
+		player.score = player.score + self.scoreValue
 		for _, b in ipairs(self.bullets) do
 			if (b.isActive) then
 				b:reset()
