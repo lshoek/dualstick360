@@ -263,6 +263,7 @@ function Player:update(f)
 		
 		--keep on z axe
 		self.rb:setPosition(Vec3(self.rb:getPosition().x,self.rb:getPosition().y,0))
+		self.rb:setAngularVelocity(Vec3(0, 0, 0))
 		
 		--gameplay printer
 		printGameplayText("HP: " .. self.hp)
