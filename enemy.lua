@@ -48,6 +48,12 @@ function Enemy:init(guid, startPosition, behaviourType, size, walkingDistance, c
 	self.go = GameObjectManager:createGameObject(guid)
 	self.go:setBaseViewDirection(Vec3(0, -1, 0):normalized())
 	self.physComp = self.go:createPhysicsComponent()
+	
+	--create Rendercomponent
+	self.rc = self.go:createRenderComponent()
+	self.rc:setPath("data/models/box.thModel")
+	self.rc:setScale(Vec3(size,size,size))
+
 
 	local cinfo = RigidBodyCInfo()
 	cinfo.shape = PhysicsFactory:createBox(Vec3(size, size, size))
@@ -95,7 +101,7 @@ function Enemy:init(guid, startPosition, behaviourType, size, walkingDistance, c
 	end
 	if(behaviourType == ENEMY_BEHAVIOURTYPE_BOSS) then
 		cinfo.mass = 20
-		self.hp = 1000
+		self.hp = 50
 		self.speed = 2
 		self.bulletLimit = 100
 		self.bulletDelay = 0.075

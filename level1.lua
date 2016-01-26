@@ -6,6 +6,15 @@ wall_counter = 0
 box_counter = 0
 rot_box_counter = 0
 
+function createGrid()
+   for j = -300, 1700, 50 do
+       DebugRenderer:drawLine3D(Vec3(j, 300, -20), Vec3(j,  -2500, -20))
+   end
+   for i = -2500, 300, 50 do
+       DebugRenderer:drawLine3D(Vec3(-300, i, -20), Vec3(1700,  i, -20))
+   end
+end
+
 function createWall(parent, dimension, position)
     wall_counter = wall_counter + 1
     
@@ -119,11 +128,11 @@ function build_level_1()
 	createEnemy(Vec3(-90, -150, 0),    ENEMY_BEHAVIOURTYPE_STALKER, ENEMY_SIZE, 100, true, ENEMY_SHOOTINGDIR_PLAYER)
 	createEnemy(Vec3(-70, -150, 0),    ENEMY_BEHAVIOURTYPE_TOWER, ENEMY_SIZE, 100, true, ENEMY_SHOOTINGDIR_PLAYER)
     createEnemy(Vec3(-80, -180, 0),    ENEMY_BEHAVIOURTYPE_MOVE, ENEMY_SIZE, 100, true, ENEMY_SHOOTINGDIR_PLAYER)
-    createEnemy(Vec3(120, -120, 0),    ENEMY_BEHAVIOURTYPE_BOSS, 40, 100, true, ENEMY_SHOOTINGDIR_PLAYER)
+    createEnemy(Vec3(1110, -2050, 0),    ENEMY_BEHAVIOURTYPE_BOSS, 40, 100, true, ENEMY_SHOOTINGDIR_PLAYER)
 	
 	local pos_y = -1030
 	for i = 1, 5 do
-		createEnemy(Vec3(442, pos_y, 0), ENEMY_BEHAVIOURTYPE_TOWER, 100, true, ENEMY_SHOOTINGDIR_RIGHT)
+		createEnemy(Vec3(442, pos_y, 0), ENEMY_BEHAVIOURTYPE_TOWER, ENEMY_SIZE, 0, true, ENEMY_SHOOTINGDIR_RIGHT)
 		pos_y = pos_y + 60
 	end	
 end
