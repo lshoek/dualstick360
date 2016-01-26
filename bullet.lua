@@ -1,6 +1,6 @@
 include("dualstick360/utils.lua")
 
-BULLET_LIFETIME = 2
+BULLET_LIFETIME = 1.5
 
 Bullet = {}
 Bullet.__index = Bullet
@@ -67,6 +67,7 @@ function Bullet:init(guid, fromPlayer, bullet_size)
 	cinfo.position = Vec3(0, 0, 0)
 	cinfo.mass = 0.09
 	cinfo.friction = 0
+	cinfo.maxLinearVelocity = 500
 	cinfo.linearDamping = 0
 	cinfo.motionType = MotionType.Dynamic
 	cinfo.qualityType = QualityType.Bullet
@@ -84,7 +85,6 @@ end
 
 function Bullet:activateBullet(position, direction, speed)
 	self.isActive = true
-	self.physComp:setState(ComponentState.Active)
 	self.go:setComponentStates(ComponentState.Active)
 	self.rb:setPosition(position)
 	self.rb:applyLinearImpulse(direction:mulScalar(speed))

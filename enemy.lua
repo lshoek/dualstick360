@@ -15,7 +15,7 @@ ENEMY_BULLETSPEED = 15
 ENEMY_BULLETSIZE = 3
 ENEMY_ATTACKDISTANCE = 100
 ENEMY_SCORE_VALUE = 10
-ENEMY_HP = 3
+ENEMY_HP = 10
 
 -- behaviour types
 ENEMY_BEHAVIOURTYPE_MOVE = 0
@@ -75,6 +75,7 @@ function Enemy:init(guid, startPosition, behaviourType, size, walkingDistance, c
 	self.bulletDelay = ENEMY_BULLETDELAY
 	self.bulletSpeed = ENEMY_BULLETSPEED
 	self.bulletSize = ENEMY_BULLETSIZE
+	self.attackDistance = ENEMY_ATTACKDISTANCE
 	self.scoreValue = ENEMY_SCORE_VALUE
 
 	self.stateTimer = 0
@@ -85,24 +86,25 @@ function Enemy:init(guid, startPosition, behaviourType, size, walkingDistance, c
 	self.timeSinceLastShot = 0
 	self.bullets = {}
 
-	self.rb = self.physComp:createRigidBody(cinfo)
-	self.go:setComponentStates(ComponentState.Inactive)
-	self.rb:setUserData(self)
-
 	-- specific behaviour types (overwrite defaults)
 	if(behaviourType == ENEMY_BEHAVIOURTYPE_TOWER) then
 		cinfo.motionType = MotionType.Fixed
 	end
 	if(behaviourType == ENEMY_BEHAVIOURTYPE_BOSS) then
-		cinfo.mass = 20
-		self.hp = 1000
-		self.speed = 2
+		cinfo.mass = 1000
+		self.hp = 150
+		self.speed = 300
 		self.bulletLimit = 100
-		self.bulletDelay = 0.075
-		self.bulletSpeed = 10
-		self.bulletSize = 2
+		self.bulletDelay = 0.1
+		self.bulletSpeed = ENEMY_BULLETSPEED
+		self.bulletSize = 3
+		self.attackDistance = 200
 		self.scoreValue = 1000
 	end
+
+	self.rb = self.physComp:createRigidBody(cinfo)
+	self.go:setComponentStates(ComponentState.Inactive)
+	self.rb:setUserData(self)
 	
 	-- shooting direction
 	self.targetDirection = Vec3(0, 0, 0)
@@ -264,8 +266,10 @@ function Enemy:init(guid, startPosition, behaviourType, size, walkingDistance, c
 			local viewDirection = self.go:getViewDirection()
 			local steer = calcSteering(self, self.targetDirection:normalized())
 			local rotationSpeed = ENEMY_ROTATIONSPEED * -steer
+			self.rb:applyLinearImpulse(viewDirection:mulScalar(self.speed))
 			self.rb:setAngularVelocity(Vec3(0, 0, rotationSpeed))
 			DebugRenderer:drawArrow(self.rb:getPosition(), self.rb:getPosition() + viewDirection:mulScalar(10))
+			printText("BOSS HP: " .. self.hp)
 		end
 		
 		-- shoot bullets
@@ -283,8 +287,8 @@ function Enemy:init(guid, startPosition, behaviourType, size, walkingDistance, c
 				for _, b in ipairs(self.bullets) do
 					if not (b.isActive) then
 						local normalTargetDir = self.targetDirection:normalized()
-						normalTargetDir = rotateVector(normalTargetDir, Vec3(0, 0, 1), math.random(-20, 20))
-						b:activateBullet(self.rb:getPosition() + normalTargetDir:mulScalar(self.size*1.2), normalTargetDir, self.bulletSpeed)
+						normalTargetDir = rotateVector(normalTargetDir, Vec3(0, 0, 1), math.random(-30, 30))
+						b:activateBullet(self.rb:getPosition() + normalTargetDir:mulScalar(self.size*1.3), normalTargetDir, self.bulletSpeed)
 						break
 					end
 				end
@@ -307,7 +311,7 @@ function Enemy:init(guid, startPosition, behaviourType, size, walkingDistance, c
 	-- attack condition
 	self.attack_playerCondition = function(eventData)
 		local distanceToPlayer = (player.rb:getPosition() - self.rb:getPosition()):length()
-		if (distanceToPlayer < ENEMY_ATTACKDISTANCE) then
+		if (distanceToPlayer < self.attackDistance) then
 			return true
 		else
 			return false
@@ -317,7 +321,7 @@ function Enemy:init(guid, startPosition, behaviourType, size, walkingDistance, c
 	-- walk condition
 	self.walkCondition = function(eventData)
 		local distanceToPlayer = (player.rb:getPosition() - self.rb:getPosition()):length()
-		if (distanceToPlayer > ENEMY_ATTACKDISTANCE) then
+		if (distanceToPlayer > self.attackDistance) then
 			return true
 		else
 			return false

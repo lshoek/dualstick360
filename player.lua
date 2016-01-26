@@ -4,22 +4,18 @@ include("dualstick360/utils.lua")
 PLAYER_SIZE = 5
 PLAYER_MAXSPEED = 50
 PLAYER_BULLETLIMIT = 25
-PLAYER_BULLETDELAY = 0.13
-
-PLAYER_BULLETSPEED = 6000
+PLAYER_BULLETDELAY = 0.1
+PLAYER_BULLETSPEED = 30
 PLAYER_BULLETSIZE = 2
 PLAYER_MINIMUMPUSH = 0.05
-
-CAMERA_Z = -150
 PLAYER_SHIELDDISTANCE = 2.1 * PLAYER_SIZE
 PLAYER_SHIELDDISTANCE_SIDE = 2 * PLAYER_SIZE * 1.05
 PLAYER_SHIELDRESTITUTION = 1.0
-
-RUMBLE_ON = true
-
 PLAYER_HP = 100
 HEALTH_BAR_LENGTH = 50   -- -(1/3) * CAMERA_Z 
 HEALTH_BAR_WIDTH = 5     -- -(1/30) * CAMERA_Z 
+RUMBLE_ON = true
+CAMERA_Z = -175
 
 Player = {}
 Player.__index = Player
@@ -211,7 +207,7 @@ function Player:update(f)
 		end
 		-- calc curserDirection
 		if (self.rightStickPush > PLAYER_MINIMUMPUSH or self.keyboardKeyPressed) then
-			self.cursorDirection = Vec3(math.sin((self.rightStickAngle/360)*2*PI), math.cos(self.rightStickAngle/360*2*PI), 0)
+			self.cursorDirection = Vec3(math.sin((self.rightStickAngle/360)*2*PI), math.cos(self.rightStickAngle/360*2*PI), 0):normalized()
 		end
 		
 		-- draw cursor
@@ -246,10 +242,10 @@ function Player:update(f)
 		end
 		
 		-- shoot bullets
-		if ((self.rightStickPush > 0.5 or self.keyboardKeyPressed) and self.timeSinceLastShot>PLAYER_BULLETDELAY and self.shieldActive == false) then
+		if ((self.rightStickPush > 0.5 or self.keyboardKeyPressed) and self.timeSinceLastShot > PLAYER_BULLETDELAY and self.shieldActive == false) then
 			for _, b in ipairs(self.bullets) do
 				if not (b.isActive) then
-					b:activateBullet(self.rb:getPosition(), self.cursorDirection, PLAYER_BULLETSPEED)
+					b:activateBullet(self.rb:getPosition() + self.cursorDirection:mulScalar(PLAYER_SIZE), self.cursorDirection, PLAYER_BULLETSPEED)
 					break
 				end
 			end
