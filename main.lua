@@ -38,12 +38,20 @@ function init()
 	player = Player.new()
 	player:init()
 
-	-- init enemy_2
+	--init enemy_2
 	for i = 1, ENEMY_2_QUANTITY do
 		local e = Enemy_2.new()
 		e:init("enemy_2_" .. i)
 		enemy_2_array[i] = e
 	end
+	
+	local terrain = GameObjectManager:createGameObject("terrain")
+	terrain.rc = terrain:createRenderComponent()
+	terrain.rc:setPath("data/models/verylasttest.fbx")
+	terrain.rc:setScale(Vec3(1000,1000,0))
+    terrain:setPosition(Vec3(0,0,19))
+	terrain:setRotation(Quaternion(Vec3(0,1,0),180))
+
 	
 	-- testHealthpack
 	testhealthpack = HEALTHPACK.new()

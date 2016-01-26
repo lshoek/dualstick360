@@ -24,6 +24,9 @@ function bulletCollision(eventData)
 			else
 				if(ridigBody_Bullet:getUserData().isHurting == true) then
 					player.hp = player.hp - 10
+					if(player.hp < 0) then
+						player.hp = 0
+					end
 					io.write("damageplayer\n")
 					healthbarupdate()
 					ridigBody_Bullet:getUserData().isHurting = false
@@ -86,6 +89,7 @@ end
 
 function Bullet:activateBullet(position, direction, speed)
 	self.isActive = true
+	self.isHurting = true
 	self.physComp:setState(ComponentState.Active)
 	self.go:setComponentStates(ComponentState.Active)
 	self.rb:setPosition(position)
