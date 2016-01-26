@@ -36,7 +36,6 @@ function init()
     terrain:setPosition(Vec3(0,0,19))
 	terrain:setRotation(Quaternion(Vec3(0,1,0),180))]]--
 	
-	
 	-- testHealthpack
 	testhealthpack = HEALTHPACK.new()
 	testhealthpack:init("testpack", Vec3(-50,0,0))
@@ -90,7 +89,6 @@ function update(deltaTime)
 			GAME_OVER = false
 		end
 	end
-	
 	createGrid()
 
 	-- utils.lua

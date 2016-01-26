@@ -1,6 +1,6 @@
 include("dualstick360/utils.lua")
 
-BULLET_LIFETIME = 1.5
+BULLET_LIFETIME = 2
 
 Bullet = {}
 Bullet.__index = Bullet

@@ -8,10 +8,10 @@ rot_box_counter = 0
 
 function createGrid()
    for j = -300, 1700, 50 do
-       DebugRenderer:drawLine3D(Vec3(j, 300, -20), Vec3(j,  -2500, -20))
+       DebugRenderer:drawLine3D(Vec3(j, 300, 10), Vec3(j, -2500, 10), Color(0, 0, 70/255, 1))
    end
    for i = -2500, 300, 50 do
-       DebugRenderer:drawLine3D(Vec3(-300, i, -20), Vec3(1700,  i, -20))
+       DebugRenderer:drawLine3D(Vec3(-300, i, 10), Vec3(1700,  i, 10), Color(0, 0, 70/255, 1))
    end
 end
 
