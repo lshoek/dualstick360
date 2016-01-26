@@ -1,3 +1,5 @@
+include("dualstick360/enemy.lua")
+
 levelobj = GameObjectManager:createGameObject("level_parent")
 
 wall_counter = 0
@@ -111,22 +113,17 @@ function build_level_1()
     createRotatedBox(levelobj, Vec3(20, 150, 15), Vec3(190, -950, 0),Quaternion(Vec3(0,0,1),120))
     createRotatedBox(levelobj, Vec3(35, 35, 15), Vec3(-90, -690, 0),Quaternion(Vec3(0,0,1),40))
 	
-	createEnemy_1_Moving(Vec3(80,0,0), 30, true,5)
-	createEnemy_1_Bouncing(Vec3(-80,-150,0),5)
-	createEnemy_1_Tower(Vec3(-90,-150,0),2)
-	createEnemy_1_Tower(Vec3(-70,-150,0),2)
-	
+    --createEnemy(position, behaviourType, size, distance, clockwise, shootingDir)
+	createEnemy(Vec3(-80, -80, 0),     ENEMY_BEHAVIOURTYPE_STALKER, ENEMY_SIZE, 100, true, ENEMY_SHOOTINGDIR_PLAYER)
+	createEnemy(Vec3(-80, -150, 0),    ENEMY_BEHAVIOURTYPE_STALKER, ENEMY_SIZE, 100, true, ENEMY_SHOOTINGDIR_PLAYER)
+	createEnemy(Vec3(-90, -150, 0),    ENEMY_BEHAVIOURTYPE_STALKER, ENEMY_SIZE, 100, true, ENEMY_SHOOTINGDIR_PLAYER)
+	createEnemy(Vec3(-70, -150, 0),    ENEMY_BEHAVIOURTYPE_TOWER, ENEMY_SIZE, 100, true, ENEMY_SHOOTINGDIR_PLAYER)
+    createEnemy(Vec3(-80, -180, 0),    ENEMY_BEHAVIOURTYPE_MOVE, ENEMY_SIZE, 100, true, ENEMY_SHOOTINGDIR_PLAYER)
+    createEnemy(Vec3(120, -120, 0),    ENEMY_BEHAVIOURTYPE_BOSS, 40, 100, true, ENEMY_SHOOTINGDIR_PLAYER)
 	
 	local pos_y = -1030
-	
 	for i = 1, 5 do
-		
-		createEnemy_1_Tower(Vec3(442, pos_y, 0),4)
+		createEnemy(Vec3(442, pos_y, 0), ENEMY_BEHAVIOURTYPE_TOWER, 100, true, ENEMY_SHOOTINGDIR_RIGHT)
 		pos_y = pos_y + 60
-		
-	end
-	
-
-	
-	
+	end	
 end

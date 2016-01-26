@@ -1,6 +1,5 @@
 include("dualstick360/utils.lua")
 
-
 BULLET_LIFETIME = 2
 
 Bullet = {}
@@ -42,12 +41,11 @@ function bulletCollision(eventData)
 			return EventResult.Handled
 		end
 		
-		--enemy_1 gets hit
-		for i = 1, ENEMY_1_ARRAYSIZE do
-			
-			if rigidBody_Other:equals(ENEMY_1_ARRAY[i].rb) then
+		-- enemy gets hit
+		for i = 1, ENEMY_ARRAYSIZE do
+			if rigidBody_Other:equals(ENEMY_ARRAY[i].rb) then
 				if(ridigBody_Bullet:getUserData().isHurting == true) then
-					ENEMY_1_ARRAY[i].hp = ENEMY_1_ARRAY[i].hp - 1 
+					ENEMY_ARRAY[i].hp = ENEMY_ARRAY[i].hp - 1 
 					ridigBody_Bullet:getUserData().isHurting = false
 					ridigBody_Bullet:getUserData().currentLifeTime = BULLET_LIFETIME
 					return EventResult.Handled
@@ -94,22 +92,6 @@ function Bullet:activateBullet(position, direction, speed)
 	self.go:setComponentStates(ComponentState.Active)
 	self.rb:setPosition(position)
 	self.rb:applyLinearImpulse(direction:mulScalar(speed))
---[[
-	if not (self.isConstrained) then
-		local cinfo = {
-			type = ConstraintType.PointToPlane,
-			A = self.rb,
-			--B = top.rb, -- Comment out this line to use the world as reference point
-			constraintSpace = "world",
-			pivot = Vec3(0,0,0),--bottom:getPosition(),
-			up = Vec3(0, 0, 1),
-			solvingMethod = "stable",
-		}
-		local constraint = PhysicsFactory:createConstraint(cinfo)
-		world:addConstraint(constraint)
-		self.isConstrained = true
-	end]]--
-	
 end
 
 function Bullet:update(f)
@@ -117,7 +99,6 @@ function Bullet:update(f)
 		self:reset()
 	end
 	self.currentLifeTime = self.currentLifeTime + f
-	--printText(self.go:getGuid() .. ": " .. self.rb:getPosition().x .. ", " .. self.rb:getPosition().y .. ", " .. self.rb:getPosition().z)
 end
 
 function Bullet:reset(f)

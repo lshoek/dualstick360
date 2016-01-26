@@ -44,6 +44,7 @@ function rotateVector(vector, axis, angle)
 	local rotVector = rotMat:mulVec3(vector)
 	return rotVector
 end
+
 function calcSteering(self, targetDir)
 	local rightVec = self.go:getRightDirection()
 	local steer = rightVec:dot(targetDir)

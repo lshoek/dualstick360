@@ -2,26 +2,18 @@ include("dualstick360/utils.lua")
 include("utils/stateMachine.lua")
 include("dualstick360/player.lua")
 include("dualstick360/bullet.lua")
-include("dualstick360/enemy_1.lua")
+include("dualstick360/enemy.lua")
 include("dualstick360/healthpack.lua")
 include("dualstick360/level1.lua")
-include("dualstick360/enemy_2.lua")
-
 
 -- variables
 player = {}
 cam = GameObjectManager:createGameObject("Camera")
 
-ENEMY_1_ARRAY = {}
-ENEMY_1_ARRAYSIZE = 0
-
-ENEMY_2_QUANTITY = 5
-enemy_2_array = {}
-
+ENEMY_ARRAY = {}
+ENEMY_ARRAYSIZE = 0
 
 GAME_OVER = false
-
--- physics world
 
 local cinfo = WorldCInfo()
 cinfo.worldSize = 2000
@@ -31,19 +23,11 @@ PhysicsSystem:setWorld(world)
 
 build_level_1()
 
-
 -- functions
 function init()
 	-- init player
 	player = Player.new()
 	player:init()
-
-	--init enemy_2
-	for i = 1, ENEMY_2_QUANTITY do
-		local e = Enemy_2.new()
-		e:init("enemy_2_" .. i)
-		enemy_2_array[i] = e
-	end
 	
 	local terrain = GameObjectManager:createGameObject("terrain")
 	terrain.rc = terrain:createRenderComponent()
@@ -56,53 +40,7 @@ function init()
 	-- testHealthpack
 	testhealthpack = HEALTHPACK.new()
 	testhealthpack:init("testpack", Vec3(-50,0,0))
-	--world	
-
-	--Events.PostInitialization:registerListener(addBulletConstraints)
-
-	-- world (block)
-	--[[
-	local block = {}
-	block.go = GameObjectManager:createGameObject("test_Block")
-	block.physComp = block.go:createPhysicsComponent()
-
-	local cinfo = RigidBodyCInfo()
-	cinfo.shape = PhysicsFactory:createBox(20, 20, 10)
-	cinfo.position = Vec3(-15, -20, -5)
-	cinfo.mass = 1000
-	cinfo.motionType = MotionType.Dynamic
-	cinfo.collisionFilterInfo = OBJECT_INFO
-
-	block.rb = block.physComp:createRigidBody(cinfo)
-	block.rb:setUserData(block)]]--
---[[
-	-- constraints
-	local cinfo = {
-		type = ConstraintType.PointToPlane,
-		A = player.rb,
-		--B = top.rb, -- Comment out this line to use the world as reference point
-		constraintSpace = "world",
-		pivot = Vec3(0, 0, 0),
-		up = Vec3(0, 0, 1),
-		solvingMethod = "stable",
-	}
-	local playerConstraint = PhysicsFactory:createConstraint(cinfo)
-
-	local cinfo = {
-		type = ConstraintType.PointToPlane,
-		A = block.rb,
-		--B = top.rb, -- Comment out this line to use the world as reference point
-		constraintSpace = "world",
-		pivot = Vec3(0, 0, 0),
-		up = Vec3(0, 0, 1),
-		solvingMethod = "stable",
-	}
-	local blockConstraint = PhysicsFactory:createConstraint(cinfo)
-
-	-- The constraint must be added in the post-initialization phase
-	Events.PostInitialization:registerListener(function() world:addConstraint(playerConstraint) end)
-	Events.PostInitialization:registerListener(function() world:addConstraint(blockConstraint) end)
-]]--
+	
 	-- cam
 	cam.cc = cam:createCameraComponent()
 	cam.cc:setPosition(Vec3(0, 0, -100))
@@ -131,15 +69,7 @@ function update(deltaTime)
 			end
 		end
 
-		for _, e in ipairs(ENEMY_1_ARRAY) do
-			for _, b in ipairs(e.bullets) do
-				if (b.isActive) then
-					b:update(deltaTime)
-				end
-			end
-		end
-
-		for _, e in ipairs(enemy_2_array) do
+		for _, e in ipairs(ENEMY_ARRAY) do
 			for _, b in ipairs(e.bullets) do
 				if (b.isActive) then
 					b:update(deltaTime)
