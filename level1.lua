@@ -6,6 +6,15 @@ wall_counter = 0
 box_counter = 0
 rot_box_counter = 0
 
+function createGrid()
+   for j = -300, 1700, 50 do
+       DebugRenderer:drawLine3D(Vec3(j, 300, -20), Vec3(j,  -2500, -20))
+   end
+   for i = -2500, 300, 50 do
+       DebugRenderer:drawLine3D(Vec3(-300, i, -20), Vec3(1700,  i, -20))
+   end
+end
+
 function createWall(parent, dimension, position)
     wall_counter = wall_counter + 1
     
@@ -114,6 +123,7 @@ function build_level_1()
     createRotatedBox(levelobj, Vec3(35, 35, 15), Vec3(-90, -690, 0),Quaternion(Vec3(0,0,1),40))
 	
     --createEnemy(position, behaviourType, size, distance, clockwise, shootingDir)
+
 	createEnemy(Vec3(400, -480, 0),    ENEMY_BEHAVIOURTYPE_STALKER,    ENEMY_SIZE,  0,     true, ENEMY_SHOOTINGDIR_PLAYER)
 	createEnemy(Vec3(400, -440, 0),    ENEMY_BEHAVIOURTYPE_STALKER,    ENEMY_SIZE,  0,     true, ENEMY_SHOOTINGDIR_PLAYER)
 	createEnemy(Vec3(400, -400, 0),    ENEMY_BEHAVIOURTYPE_STALKER,    ENEMY_SIZE,  0,     true, ENEMY_SHOOTINGDIR_PLAYER)

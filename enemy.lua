@@ -48,6 +48,12 @@ function Enemy:init(guid, startPosition, behaviourType, size, walkingDistance, c
 	self.go = GameObjectManager:createGameObject(guid)
 	self.go:setBaseViewDirection(Vec3(0, -1, 0):normalized())
 	self.physComp = self.go:createPhysicsComponent()
+	
+	--create Rendercomponent
+	self.rc = self.go:createRenderComponent()
+	self.rc:setPath("data/models/box.thModel")
+	self.rc:setScale(Vec3(size,size,size))
+
 
 	local cinfo = RigidBodyCInfo()
 	cinfo.shape = PhysicsFactory:createBox(Vec3(size, size, size))

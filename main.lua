@@ -29,6 +29,14 @@ function init()
 	player = Player.new()
 	player:init()
 	
+	--[[local terrain = GameObjectManager:createGameObject("terrain")
+	terrain.rc = terrain:createRenderComponent()
+	terrain.rc:setPath("data/models/verylasttest.fbx")
+	terrain.rc:setScale(Vec3(1000,1000,0))
+    terrain:setPosition(Vec3(0,0,19))
+	terrain:setRotation(Quaternion(Vec3(0,1,0),180))]]--
+	
+	
 	-- testHealthpack
 	testhealthpack = HEALTHPACK.new()
 	testhealthpack:init("testpack", Vec3(-50,0,0))
@@ -82,6 +90,8 @@ function update(deltaTime)
 			GAME_OVER = false
 		end
 	end
+	
+	createGrid()
 
 	-- utils.lua
 	printTextCalls = 0
