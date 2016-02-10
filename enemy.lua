@@ -23,20 +23,24 @@ function Enemy:init(guid, startPosition, behaviourType, size, walkingDistance, c
 	self.go = GameObjectManager:createGameObject(guid)
 	self.go:setBaseViewDirection(Vec3(0, -1, 0):normalized())
 	self.physComp = self.go:createPhysicsComponent()
-	
-	--create Rendercomponent
-	self.rc = self.go:createRenderComponent()
-	self.rc:setPath("data/models/box.thModel")
-	self.rc:setScale(Vec3(size, size/2, size))
 
 	local cinfo = RigidBodyCInfo()
-	cinfo.shape = PhysicsFactory:createBox(Vec3(size, size, size))
-	cinfo.position = startPosition
+	if not (behaviourType == ENEMY_BEHAVIOURTYPE_BOSS) then
+        --create Rendercomponent
+        self.rc = self.go:createRenderComponent()
+		self.rc:setPath("data/models/box.thModel")
+		self.rc:setScale(Vec3(size, size/2, size))
+        cinfo.shape = PhysicsFactory:createBox(Vec3(size, size, size))
+    else
+   		cinfo.shape = PhysicsFactory:createSphere(size)
+    end
+
 	if(behaviourType == ENEMY_BEHAVIOURTYPE_BOUNCE) then
         cinfo.mass = 0.05
     else
         cinfo.mass = 1
     end
+    cinfo.position = startPosition
 	cinfo.linearDamping = 2.5
 	cinfo.angularDamping = 1
 	cinfo.restitution = 0
@@ -63,6 +67,7 @@ function Enemy:init(guid, startPosition, behaviourType, size, walkingDistance, c
 	self.scoreValue = ENEMY_SCORE_VALUE
 
 	self.stateTimer = 0
+	self.attackTimer = 1
 	self.moveLeft = false
 	self.moveUp = false
 	self.moving = moving
@@ -78,7 +83,7 @@ function Enemy:init(guid, startPosition, behaviourType, size, walkingDistance, c
 		cinfo.mass = 1000
 		self.hp = 150
 		self.speed = 300
-		self.bulletLimit = 100
+		self.bulletLimit = 100 + 60
 		self.bulletDelay = 0.1
 		self.bulletSpeed = ENEMY_BULLETSPEED
 		self.bulletSize = 3
@@ -254,6 +259,7 @@ function Enemy:init(guid, startPosition, behaviourType, size, walkingDistance, c
 			self.rb:setAngularVelocity(Vec3(0, 0, rotationSpeed))
 			DebugRenderer:drawArrow(self.rb:getPosition(), self.rb:getPosition() + viewDirection:mulScalar(10))
 			printText("BOSS HP: " .. self.hp)
+			printText("attackTimer: " .. self.attackTimer)
 		end
 		
 		-- shoot bullets
@@ -267,12 +273,27 @@ function Enemy:init(guid, startPosition, behaviourType, size, walkingDistance, c
 					end
 				end
 				self.timeSinceLastShot = 0
-			else
+			else 
+				--boss attack code
+				self.attackTimer = ((self.attackTimer + 1)%30)
+				if (self.attackTimer == 0) then
+					for i=1, 60 do
+						for _, b in ipairs(self.bullets) do
+							if not (b.isActive) then
+								local normalTargetDir = self.targetDirection:normalized()
+								normalTargetDir = rotateVector(normalTargetDir, Vec3(0, 0, 1), i*(360/60))
+								b:activateBullet(self.rb:getPosition() + normalTargetDir:mulScalar(self.size*1.05), normalTargetDir, self.bulletSpeed)
+								break
+							end
+						end
+					end
+				end
+
 				for _, b in ipairs(self.bullets) do
 					if not (b.isActive) then
 						local normalTargetDir = self.targetDirection:normalized()
 						normalTargetDir = rotateVector(normalTargetDir, Vec3(0, 0, 1), math.random(-30, 30))
-						b:activateBullet(self.rb:getPosition() + normalTargetDir:mulScalar(self.size*1.3), normalTargetDir, self.bulletSpeed)
+						b:activateBullet(self.rb:getPosition() + normalTargetDir:mulScalar(self.size*1.05), normalTargetDir, self.bulletSpeed)
 						break
 					end
 				end

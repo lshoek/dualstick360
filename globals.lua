@@ -2,6 +2,9 @@
 		player
 ]]--
 
+-- boss spawn 		Vec3(1110, -2050, 0)
+-- normal spawn		Vec3(1, 0, 0)
+PLAYER_STARTPOSITION = Vec3(1, 0, 0)
 PLAYER_SIZE = 5
 PLAYER_MAXSPEED = 50
 PLAYER_BULLETLIMIT = 25
