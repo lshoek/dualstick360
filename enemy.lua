@@ -342,6 +342,10 @@ function Enemy:init(guid, startPosition, behaviourType, size, walkingDistance, c
 			end
 		end
 		self.go:setComponentStates(ComponentState.Inactive)
+		if (self.behaviourType == ENEMY_BEHAVIOURTYPE_BOSS) then
+			BOSS_CONDITION_BEATEN = true
+
+		end
 		return EventResult.Handled
 	end
 	

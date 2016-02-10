@@ -53,6 +53,9 @@ ENEMY_SHOOTINGDIR_LEFT = 2
 ENEMY_SHOOTINGDIR_RIGHT = 3
 ENEMY_SHOOTINGDIR_PLAYER = 4
 
+-- boss condition
+BOSS_CONDITION_BEATEN = false
+
 --[[
 		healthpack
 ]]--
@@ -90,3 +93,4 @@ player = {}
 enemyArray = {}
 
 GAME_OVER = false
+GAME_BEATEN = false

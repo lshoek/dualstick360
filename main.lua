@@ -33,13 +33,17 @@ function update(deltaTime)
     cam.cc:setPosition(Vec3(player.rb:getPosition().x, player.rb:getPosition().y, CAMERA_Z))
     hb:setPosition(Vec3((2/3)*CAMERA_Z + cam.cc:getPosition().x + 50, (4/15)*CAMERA_Z + cam.cc:getPosition().y -20, (2/15)*CAMERA_Z))
     
-    -- check hp
+    -- check condition
 	if player.hp <= 0 then
 		GAME_OVER = true
 	end
 
+	if BOSS_CONDITION_BEATEN then
+		GAME_BEATEN = true
+	end
+
 	-- update gameobjects
-	if not GAME_OVER then
+	if not GAME_OVER and not GAME_BEATEN then
 		player:update(deltaTime)
 
 		for _, b in ipairs(player.bullets) do
@@ -56,8 +60,13 @@ function update(deltaTime)
 			end
 		end
 	else
-		DebugRenderer:printText(Vec2(-0.1, 0.5), "GAME OVER")
-		DebugRenderer:printText(Vec2(-0.15, 0.45), "Press Return to Restart")
+		if GAME_OVER then
+			DebugRenderer:printText(Vec2(-0.1, 0.5), "GAME OVER")
+			DebugRenderer:printText(Vec2(-0.15, 0.45), "Press Return to Restart")
+		elseif GAME_BEATEN then
+			DebugRenderer:printText(Vec2(-0.1, 0.5), "YOU WON!")
+			DebugRenderer:printText(Vec2(-0.15, 0.45), "Hooray, that's the game!")
+		end
 		player.go:setComponentStates(ComponentState.Inactive)
 		shield.go:setComponentStates(ComponentState.Inactive)
 		shield_l.go:setComponentStates(ComponentState.Inactive)
