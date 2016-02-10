@@ -1,3 +1,4 @@
+include("dualstick360/globals.lua")
 include("dualstick360/utils.lua")
 
 Bullet = {}
@@ -53,18 +54,29 @@ function bulletCollision(eventData)
 	return EventResult.Handled
 end
 
-function Bullet:init(guid, fromPlayer, bullet_size)
+function Bullet:init(guid, fromPlayer, strong)
 	self.go = GameObjectManager:createGameObject("b" .. guid)
 	self.currentLifeTime = 0
 	self.isActive = false
 	self.isConstrained = false
 	self.isHurting = true
 	self.fromPlayer = fromPlayer
+	self.strong = strong
 	self.physComp = self.go:createPhysicsComponent()
 	self.physComp:getContactPointEvent():registerListener(bulletCollision)
 
 	local cinfo = RigidBodyCInfo()
-	cinfo.shape = PhysicsFactory:createSphere(bullet_size)
+	
+	if(strong == true) then
+		cinfo.shape = PhysicsFactory:createSphere(BULLET_SIZE_STRONG)
+	else
+		cinfo.shape = PhysicsFactory:createSphere(BULLET_SIZE_WEAK)
+	end
+	
+	if(fromPlayer == true) then
+		cinfo.shape = PhysicsFactory:createSphere(PLAYER_BULLETSIZE)
+	end
+	
 	cinfo.position = Vec3(0, 0, 0)
 	cinfo.mass = 0.09
 	cinfo.friction = 0
@@ -74,9 +86,13 @@ function Bullet:init(guid, fromPlayer, bullet_size)
 	cinfo.qualityType = QualityType.Bullet
 	
 	if (string.find(guid, 'e')) then
-		cinfo.collisionFilterInfo = 0x7 -- ENEMYBULLET_INFO
+		if(strong == true) then
+			cinfo.collisionFilterInfo = ENEMYBULLET_INFO_STRONG
+		else
+			cinfo.collisionFilterInfo = ENEMYBULLET_INFO_WEAK
+		end
 	else
-		cinfo.collisionFilterInfo = 0x3 -- PLAYERBULLET_INFO
+		cinfo.collisionFilterInfo = PLAYERBULLET_INFO
 	end
 
 	self.rb = self.physComp:createRigidBody(cinfo)

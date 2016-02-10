@@ -70,7 +70,7 @@ function Player:init() -- : inserts metatable at args called 'self'
 	cinfo.mass = 0.5
 	cinfo.restitution = PLAYER_SHIELDRESTITUTION
 	cinfo.motionType = MotionType.Keyframed
-	cinfo.collisionFilterInfo = 0x7
+	cinfo.collisionFilterInfo = PLAYERSHIELD_INFO
 	
 	shield.rb = shield.physComp:createRigidBody(cinfo)
 	--shield.go:setComponentStates(ComponentState.Inactive)
@@ -86,7 +86,7 @@ function Player:init() -- : inserts metatable at args called 'self'
 	cinfo.mass = 0.5
 	cinfo.restitution = PLAYER_SHIELDRESTITUTION
 	cinfo.motionType = MotionType.Keyframed
-	cinfo.collisionFilterInfo = 0x7
+	cinfo.collisionFilterInfo = PLAYERSHIELD_INFO
 	
 	shield_r.rb = shield_r.physComp:createRigidBody(cinfo)
 	shield_r.go:setComponentStates(ComponentState.Inactive)
@@ -105,7 +105,7 @@ function Player:init() -- : inserts metatable at args called 'self'
 	cinfo.mass = 0.5
 	cinfo.restitution = PLAYER_SHIELDRESTITUTION
 	cinfo.motionType = MotionType.Keyframed
-	cinfo.collisionFilterInfo = 0x7
+	cinfo.collisionFilterInfo = PLAYERSHIELD_INFO
 	
 	shield_l.rb = shield_l.physComp:createRigidBody(cinfo)
 	shield_l.go:setComponentStates(ComponentState.Inactive)
@@ -114,7 +114,7 @@ function Player:init() -- : inserts metatable at args called 'self'
 	-- init bullets
 	for i=1, PLAYER_BULLETLIMIT do
 		local b = Bullet.new(i)
-		b:init(i, true, PLAYER_BULLETSIZE)
+		b:init(i, true, false)
 		self.bullets[i] = b
 	end
     

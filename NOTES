@@ -3,12 +3,37 @@
 // subsystem/physics/havok/world.cpp
 hkBool gep::HavokCollisionFilter_Simple::isCollisionEnabled(hkUint32 infoA, hkUint32 infoB) const
 {
+	//bullets should not collide with its own type
 	if (infoA == 0x3 && infoB == 0x3) return false;
+	if(infoA == 0x7 && infoB == 0x7) return false;
+	if(infoA == 0x7f && infoB == 0x7f) return false;
 	
+	//Player bullets should not collide with player
 	if (infoA == 0x3 && infoB == 0x1) return false;
 	if (infoA == 0x1 && infoB == 0x3) return false;
 
+	//player bullet should collide with players shield
+	if(infoA == 0x3 && infoB == 0x3f) return false;
+	if(infoA == 0x3f && infoB == 0x3) return false;
+
+	//weak bullet should not collide with player bullet
 	if (infoA == 0x7 && infoB == 0x3) return false;
 	if (infoA == 0x3 && infoB == 0x7) return false;
+
+	//strong bullet should not collide with weak bullet
+	if(infoA == 0x7f && infoB == 0x7) return false;
+	if(infoA == 0x7 && infoB == 0x7f) return false;
+
+	//strong bullet should not collide with player bullet
+	if(infoA == 0x7f && infoB == 0x3) return false;
+	if(infoA == 0x3 && infoB == 0x7f) return false;
+
+	//strong bullet should not collide with players shield
+	if(infoA == 0x7f && infoB == 0x3f) return false;
+	if(infoA == 0x3f && infoB == 0x7f) return false;
+
+	
+   
+
     return infoA & infoB;
 }

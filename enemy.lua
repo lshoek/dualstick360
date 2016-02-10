@@ -11,14 +11,14 @@ function Enemy.new()
 	return self
 end
 
-function createEnemy(position, behaviourType, size, distance, clockwise, shootingDir)
+function createEnemy(position, behaviourType, size, distance, clockwise, shootingDir,strong)
 	local e = Enemy.new()
 	ENEMY_ARRAYSIZE = ENEMY_ARRAYSIZE + 1
-	e:init("e" .. ENEMY_ARRAYSIZE, position, behaviourType, size, distance, clockwise, shootingDir)
+	e:init("e" .. ENEMY_ARRAYSIZE, position, behaviourType, size, distance, clockwise, shootingDir, strong)
 	enemyArray[ENEMY_ARRAYSIZE] = e
 end
 
-function Enemy:init(guid, startPosition, behaviourType, size, walkingDistance, clockwise, shootingDir)
+function Enemy:init(guid, startPosition, behaviourType, size, walkingDistance, clockwise, shootingDir,strong)
 	-- just defaults
 	self.go = GameObjectManager:createGameObject(guid)
 	self.go:setBaseViewDirection(Vec3(0, -1, 0):normalized())
@@ -58,7 +58,7 @@ function Enemy:init(guid, startPosition, behaviourType, size, walkingDistance, c
 	self.bulletLimit = ENEMY_BULLETLIMIT
 	self.bulletDelay = ENEMY_BULLETDELAY
 	self.bulletSpeed = ENEMY_BULLETSPEED
-	self.bulletSize = ENEMY_BULLETSIZE
+	self.bulletTypeStrong = strong
 	self.attackDistance = ENEMY_ATTACKDISTANCE
 	self.scoreValue = ENEMY_SCORE_VALUE
 
@@ -105,7 +105,7 @@ function Enemy:init(guid, startPosition, behaviourType, size, walkingDistance, c
 	-- init bullets
 	for i = 1, self.bulletLimit do
 		local b = Bullet.new(i)
-		b:init(guid .. i, false, self.bulletSize)
+		b:init(guid .. i, false, self.bulletTypeStrong)
 		self.bullets[i] = b
 	end
 	
