@@ -74,6 +74,13 @@ function Enemy:init(guid, startPosition, behaviourType, size, walkingDistance, c
 	self.numBullets = 0
 	self.timeSinceLastShot = 0
 	self.bullets = {}
+	
+	-- init bullets
+	for i = 1, self.bulletLimit do
+		local b = Bullet.new(i)
+		b:init(guid .. i, false, self.bulletTypeStrong)
+		self.bullets[i] = b
+	end
 
 	-- specific behaviour types (overwrite defaults)
 	if(behaviourType == ENEMY_BEHAVIOURTYPE_TOWER) then
@@ -84,11 +91,22 @@ function Enemy:init(guid, startPosition, behaviourType, size, walkingDistance, c
 		self.hp = 150
 		self.speed = 300
 		self.bulletLimit = 100 + 60
-		self.bulletDelay = 0.1
+		self.bulletDelay = 0.2
 		self.bulletSpeed = ENEMY_BULLETSPEED
 		self.bulletSize = 3
 		self.attackDistance = 200
 		self.scoreValue = 1000
+		
+		for i = 1, self.bulletLimit do
+		local b = Bullet.new(i)
+			if(i < 100) then
+				b:init(guid .. i, false, true)
+			else
+				b:init(guid .. i, false, false)
+			end
+			self.bullets[i] = b
+		end
+		
 	end
 
 	self.rb = self.physComp:createRigidBody(cinfo)
@@ -105,13 +123,6 @@ function Enemy:init(guid, startPosition, behaviourType, size, walkingDistance, c
 		self.targetDirection = Vec3(-1, 0, 0)
 	elseif(self.shootingDir == ENEMY_SHOOTINGDIR_RIGHT) then
 		self.targetDirection = Vec3(1, 0, 0)
-	end
-	
-	-- init bullets
-	for i = 1, self.bulletLimit do
-		local b = Bullet.new(i)
-		b:init(guid .. i, false, self.bulletTypeStrong)
-		self.bullets[i] = b
 	end
 	
 	-- spawning - State
@@ -278,7 +289,8 @@ function Enemy:init(guid, startPosition, behaviourType, size, walkingDistance, c
 				self.attackTimer = ((self.attackTimer + 1)%30)
 				if (self.attackTimer == 0) then
 					for i=1, 60 do
-						for _, b in ipairs(self.bullets) do
+						for i=100, self.bulletLimit do
+							local b = self.bullets[i]
 							if not (b.isActive) then
 								local normalTargetDir = self.targetDirection:normalized()
 								normalTargetDir = rotateVector(normalTargetDir, Vec3(0, 0, 1), i*(360/60))
@@ -289,7 +301,8 @@ function Enemy:init(guid, startPosition, behaviourType, size, walkingDistance, c
 					end
 				end
 
-				for _, b in ipairs(self.bullets) do
+				for i=1, 100 do
+					local b = self.bullets[i]
 					if not (b.isActive) then
 						local normalTargetDir = self.targetDirection:normalized()
 						normalTargetDir = rotateVector(normalTargetDir, Vec3(0, 0, 1), math.random(-30, 30))
