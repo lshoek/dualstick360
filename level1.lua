@@ -159,5 +159,5 @@ function build_level_1()
         pos_y = pos_y + 60
     end
 
-    createEnemy(Vec3(1110, -2050, 0), ENEMY_BEHAVIOURTYPE_BOSS, 40, 0, true, ENEMY_SHOOTINGDIR_PLAYER)
+    createEnemy(Vec3(1110, -2050, 0), ENEMY_BEHAVIOURTYPE_BOSS, ENEMY_SIZE*6, 0, true, ENEMY_SHOOTINGDIR_PLAYER)
 end

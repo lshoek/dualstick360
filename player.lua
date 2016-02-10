@@ -47,7 +47,7 @@ function Player:init() -- : inserts metatable at args called 'self'
 
 	local cinfo = RigidBodyCInfo()
 	cinfo.shape = PhysicsFactory:createSphere(PLAYER_SIZE)
-	cinfo.position = Vec3(1, 0, 0)
+	cinfo.position = PLAYER_STARTPOSITION
 	cinfo.mass = 1.5
 	cinfo.linearDamping = 7.0
 	cinfo.motionType = MotionType.Dynamic

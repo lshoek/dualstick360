@@ -2,6 +2,9 @@
 		player
 ]]--
 
+-- boss spawn 		Vec3(1110, -2050, 0)
+-- normal spawn		Vec3(1, 0, 0)
+PLAYER_STARTPOSITION = Vec3(1, 0, 0)
 PLAYER_SIZE = 5
 PLAYER_MAXSPEED = 50
 PLAYER_BULLETLIMIT = 25
@@ -52,6 +55,9 @@ ENEMY_SHOOTINGDIR_LEFT = 2
 ENEMY_SHOOTINGDIR_RIGHT = 3
 ENEMY_SHOOTINGDIR_PLAYER = 4
 
+-- boss condition
+BOSS_CONDITION_BEATEN = false
+
 --[[
 		healthpack
 ]]--
@@ -91,3 +97,4 @@ player = {}
 enemyArray = {}
 
 GAME_OVER = false
+GAME_BEATEN = false
