@@ -1,3 +1,4 @@
+include("dualstick360/globals.lua")
 include("dualstick360/utils.lua")
 include("utils/stateMachine.lua")
 include("dualstick360/player.lua")
@@ -6,46 +7,25 @@ include("dualstick360/enemy.lua")
 include("dualstick360/healthpack.lua")
 include("dualstick360/level1.lua")
 
--- variables
-player = {}
-cam = GameObjectManager:createGameObject("Camera")
-
-ENEMY_ARRAY = {}
-ENEMY_ARRAYSIZE = 0
-
-GAME_OVER = false
-
-local cinfo = WorldCInfo()
-cinfo.worldSize = 2000
-world = PhysicsFactory:createWorld(cinfo)
-world:setCollisionFilter(PhysicsFactory:createCollisionFilter_Simple())
-PhysicsSystem:setWorld(world)
-
-build_level_1()
-
--- functions
 function init()
 	-- init player
 	player = Player.new()
 	player:init()
 	
+	-- cam
+	cam = GameObjectManager:createGameObject("Camera")
+	cam.cc = cam:createCameraComponent()
+	cam.cc:setPosition(Vec3(0, 0, -100))
+	cam.lookDir = Vec3(0, 1, 0)
+	cam.cc:lookAt(cam.lookDir:mulScalar(2.5))
+	cam.cc:setState(ComponentState.Active)
+
 	--[[local terrain = GameObjectManager:createGameObject("terrain")
 	terrain.rc = terrain:createRenderComponent()
 	terrain.rc:setPath("data/models/verylasttest.fbx")
 	terrain.rc:setScale(Vec3(1000,1000,0))
     terrain:setPosition(Vec3(0,0,19))
 	terrain:setRotation(Quaternion(Vec3(0,1,0),180))]]--
-	
-	-- testHealthpack
-	testhealthpack = HEALTHPACK.new()
-	testhealthpack:init("testpack", Vec3(-50,0,0))
-	
-	-- cam
-	cam.cc = cam:createCameraComponent()
-	cam.cc:setPosition(Vec3(0, 0, -100))
-	cam.lookDir = Vec3(0, 1, 0)
-	cam.cc:lookAt(cam.lookDir:mulScalar(2.5))
-	cam.cc:setState(ComponentState.Active)
 end
 
 function update(deltaTime)
@@ -68,7 +48,7 @@ function update(deltaTime)
 			end
 		end
 
-		for _, e in ipairs(ENEMY_ARRAY) do
+		for _, e in ipairs(enemyArray) do
 			for _, b in ipairs(e.bullets) do
 				if (b.isActive) then
 					b:update(deltaTime)
@@ -95,9 +75,15 @@ function update(deltaTime)
 	printTextCalls = 0
 	printGameplayTextCalls = 0
 end
-
 Events.Update:registerListener(update)
 
 -- main
+local cinfo = WorldCInfo()
+cinfo.worldSize = 2000
+world = PhysicsFactory:createWorld(cinfo)
+world:setCollisionFilter(PhysicsFactory:createCollisionFilter_Simple())
+PhysicsSystem:setWorld(world)
+
 init()
+build_level_1()
 PhysicsSystem:setDebugDrawingEnabled(true)

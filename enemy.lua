@@ -1,35 +1,10 @@
+include("dualstick360/globals.lua")
 include("dualstick360/player.lua")
 include("dualstick360/bullet.lua")
 include("dualstick360/utils.lua")
 
 Enemy = {}
 Enemy.__index = Enemy
-
--- standard parameters (may be overwritten)
-ENEMY_SIZE = 8
-ENEMY_SPEED = 7.5
-ENEMY_ROTATIONSPEED = 10
-ENEMY_BULLETLIMIT = 10 
-ENEMY_BULLETDELAY = 1.0
-ENEMY_BULLETSPEED = 15
-ENEMY_BULLETSIZE = 3
-ENEMY_ATTACKDISTANCE = 100
-ENEMY_SCORE_VALUE = 10
-ENEMY_HP = 10
-
--- behaviour types
-ENEMY_BEHAVIOURTYPE_MOVE = 0
-ENEMY_BEHAVIOURTYPE_TOWER = 1
-ENEMY_BEHAVIOURTYPE_BOUNCE = 2
-ENEMY_BEHAVIOURTYPE_STALKER = 3
-ENEMY_BEHAVIOURTYPE_BOSS = 9
-
--- shooting directions
-ENEMY_SHOOTINGDIR_UP = 0
-ENEMY_SHOOTINGDIR_DOWN = 1
-ENEMY_SHOOTINGDIR_LEFT = 2
-ENEMY_SHOOTINGDIR_RIGHT = 3
-ENEMY_SHOOTINGDIR_PLAYER = 4
 
 function Enemy.new()
 	local self = setmetatable({}, Enemy)
@@ -40,7 +15,7 @@ function createEnemy(position, behaviourType, size, distance, clockwise, shootin
 	local e = Enemy.new()
 	ENEMY_ARRAYSIZE = ENEMY_ARRAYSIZE + 1
 	e:init("e" .. ENEMY_ARRAYSIZE, position, behaviourType, size, distance, clockwise, shootingDir)
-	ENEMY_ARRAY[ENEMY_ARRAYSIZE] = e
+	enemyArray[ENEMY_ARRAYSIZE] = e
 end
 
 function Enemy:init(guid, startPosition, behaviourType, size, walkingDistance, clockwise, shootingDir)
@@ -57,7 +32,11 @@ function Enemy:init(guid, startPosition, behaviourType, size, walkingDistance, c
 	local cinfo = RigidBodyCInfo()
 	cinfo.shape = PhysicsFactory:createBox(Vec3(size, size, size))
 	cinfo.position = startPosition
-	cinfo.mass = 1
+	if(behaviourType == ENEMY_BEHAVIOURTYPE_BOUNCE) then
+        cinfo.mass = 0.05
+    else
+        cinfo.mass = 1
+    end
 	cinfo.linearDamping = 2.5
 	cinfo.angularDamping = 1
 	cinfo.restitution = 0

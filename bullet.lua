@@ -1,7 +1,5 @@
 include("dualstick360/utils.lua")
 
-BULLET_LIFETIME = 2
-
 Bullet = {}
 Bullet.__index = Bullet
 
@@ -43,9 +41,9 @@ function bulletCollision(eventData)
 		
 		-- enemy gets hit
 		for i = 1, ENEMY_ARRAYSIZE do
-			if rigidBody_Other:equals(ENEMY_ARRAY[i].rb) then
+			if rigidBody_Other:equals(enemyArray[i].rb) then
 				if(ridigBody_Bullet:getUserData().isHurting == true) then
-					ENEMY_ARRAY[i].hp = ENEMY_ARRAY[i].hp - 1 
+					enemyArray[i].hp = enemyArray[i].hp - 1 
 					ridigBody_Bullet:getUserData().isHurting = false
 					ridigBody_Bullet:getUserData().currentLifeTime = BULLET_LIFETIME
 					return EventResult.Handled

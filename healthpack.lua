@@ -1,12 +1,10 @@
 --healthpack.lue
+include("dualstick360/globals.lua")
 include("dualstick360/player.lua")
 include("dualstick360/utils.lua")
 
 HEALTHPACK = {}
 HEALTHPACK.__index = HEALTHPACK
-
-HEALTHPACK_SIZE = 8
-HEALTHPACK_HPPLUS = 25
 
 function HEALTHPACK.new()
 	local self = setmetatable({}, HEALTHPACK)

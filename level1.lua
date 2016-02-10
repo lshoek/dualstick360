@@ -121,20 +121,43 @@ function build_level_1()
     createRotatedBox(levelobj, Vec3(80, 37.5, 15), Vec3(400, -50, 0),Quaternion(Vec3(0,0,1),70))
     createRotatedBox(levelobj, Vec3(20, 150, 15), Vec3(190, -950, 0),Quaternion(Vec3(0,0,1),120))
     createRotatedBox(levelobj, Vec3(35, 35, 15), Vec3(-90, -690, 0),Quaternion(Vec3(0,0,1),40))
-	
-    --createEnemy(position, behaviourType, size, distance, clockwise, shootingDir)
 
-	createEnemy(Vec3(400, -480, 0),    ENEMY_BEHAVIOURTYPE_STALKER,    ENEMY_SIZE,  0,     true, ENEMY_SHOOTINGDIR_PLAYER)
-	createEnemy(Vec3(400, -440, 0),    ENEMY_BEHAVIOURTYPE_STALKER,    ENEMY_SIZE,  0,     true, ENEMY_SHOOTINGDIR_PLAYER)
-	createEnemy(Vec3(400, -400, 0),    ENEMY_BEHAVIOURTYPE_STALKER,    ENEMY_SIZE,  0,     true, ENEMY_SHOOTINGDIR_PLAYER)
-	createEnemy(Vec3(-70, -150, 0),    ENEMY_BEHAVIOURTYPE_TOWER,      ENEMY_SIZE,  0,     true, ENEMY_SHOOTINGDIR_PLAYER)
-    createEnemy(Vec3(-80, -180, 0),    ENEMY_BEHAVIOURTYPE_MOVE,       ENEMY_SIZE,  100,   true, ENEMY_SHOOTINGDIR_PLAYER)
+    -- testHealthpack
+    healthpack1 = HEALTHPACK.new()
+    healthpack1:init("healthpack1", Vec3(1480,-1380,0))
+        healthpack2 = HEALTHPACK.new()
+    healthpack2:init("healthpack2", Vec3(1460,-930,0))
+        healthpack3 = HEALTHPACK.new()
+    healthpack3:init("healthpack3", Vec3(150,-730,0))
+        
+    --createEnemy(position, behaviourType, size, distance, clockwise, shootingDir)
+    createEnemy(Vec3(-80, -330, 0),    ENEMY_BEHAVIOURTYPE_STALKER,    ENEMY_SIZE,  0,     true, ENEMY_SHOOTINGDIR_PLAYER)
+    createEnemy(Vec3(-10, -330, 0),    ENEMY_BEHAVIOURTYPE_STALKER,    ENEMY_SIZE,  0,     true, ENEMY_SHOOTINGDIR_PLAYER)
+    createEnemy(Vec3(-50, -290, 0),    ENEMY_BEHAVIOURTYPE_STALKER,    ENEMY_SIZE,  0,     true, ENEMY_SHOOTINGDIR_PLAYER)
+    createEnemy(Vec3(100, -150, 0),    ENEMY_BEHAVIOURTYPE_TOWER,      ENEMY_SIZE,  0,     true, ENEMY_SHOOTINGDIR_DOWN)
+    createEnemy(Vec3(50, -150, 0),    ENEMY_BEHAVIOURTYPE_TOWER,      ENEMY_SIZE,  0,     true, ENEMY_SHOOTINGDIR_DOWN)
+    createEnemy(Vec3(200, -80, 0),    ENEMY_BEHAVIOURTYPE_STALKER,    ENEMY_SIZE,  0,     true, ENEMY_SHOOTINGDIR_PLAYER)
+    createEnemy(Vec3(200, -20, 0),    ENEMY_BEHAVIOURTYPE_STALKER,    ENEMY_SIZE,  0,     true, ENEMY_SHOOTINGDIR_PLAYER)
+        
+    createEnemy(Vec3(170, -550, 0),    ENEMY_BEHAVIOURTYPE_BOUNCE,    ENEMY_SIZE,  0,     true, ENEMY_SHOOTINGDIR_PLAYER)
+    createEnemy(Vec3(380, -550, 0),    ENEMY_BEHAVIOURTYPE_BOUNCE,    ENEMY_SIZE,  0,     true, ENEMY_SHOOTINGDIR_PLAYER)
+    createEnemy(Vec3(890, -700, 0),    ENEMY_BEHAVIOURTYPE_BOUNCE,    ENEMY_SIZE,  0,     true, ENEMY_SHOOTINGDIR_PLAYER)
+    createEnemy(Vec3(990, -800, 0),    ENEMY_BEHAVIOURTYPE_BOUNCE,    ENEMY_SIZE,  0,     true, ENEMY_SHOOTINGDIR_PLAYER)
+    createEnemy(Vec3(990, -900, 0),    ENEMY_BEHAVIOURTYPE_BOUNCE,    ENEMY_SIZE,  0,     true, ENEMY_SHOOTINGDIR_PLAYER)
+    createEnemy(Vec3(1100, -800, 0),    ENEMY_BEHAVIOURTYPE_BOUNCE,    ENEMY_SIZE,  0,     true, ENEMY_SHOOTINGDIR_PLAYER)
+        
+    createEnemy(Vec3(950, -1500, 0),    ENEMY_BEHAVIOURTYPE_STALKER,    ENEMY_SIZE,  0,     true, ENEMY_SHOOTINGDIR_PLAYER)
+    createEnemy(Vec3(1000, -1500, 0),    ENEMY_BEHAVIOURTYPE_STALKER,    ENEMY_SIZE,  0,     true, ENEMY_SHOOTINGDIR_PLAYER)
+    createEnemy(Vec3(1050, -1500, 0),    ENEMY_BEHAVIOURTYPE_STALKER,    ENEMY_SIZE,  0,     true, ENEMY_SHOOTINGDIR_PLAYER)
+    createEnemy(Vec3(1100, -1500, 0),    ENEMY_BEHAVIOURTYPE_STALKER,    ENEMY_SIZE,  0,     true, ENEMY_SHOOTINGDIR_PLAYER)
+    createEnemy(Vec3(1020, -1600, 0),    ENEMY_BEHAVIOURTYPE_STALKER,    ENEMY_SIZE,  0,     true, ENEMY_SHOOTINGDIR_PLAYER)
+    createEnemy(Vec3(1200, -1650, 0),    ENEMY_BEHAVIOURTYPE_STALKER,    ENEMY_SIZE,  0,     true, ENEMY_SHOOTINGDIR_PLAYER)
+
+        local pos_y = -1030
+    for i = 1, 5 do
+        createEnemy(Vec3(442, pos_y, 0), ENEMY_BEHAVIOURTYPE_TOWER, ENEMY_SIZE, 100, true, ENEMY_SHOOTINGDIR_RIGHT)
+        pos_y = pos_y + 60
+    end
 
     createEnemy(Vec3(1110, -2050, 0), ENEMY_BEHAVIOURTYPE_BOSS, 40, 0, true, ENEMY_SHOOTINGDIR_PLAYER)
-	
-	local pos_y = -1030
-	for i = 1, 5 do
-		createEnemy(Vec3(442, pos_y, 0), ENEMY_BEHAVIOURTYPE_TOWER, ENEMY_SIZE, 100, true, ENEMY_SHOOTINGDIR_RIGHT)
-		pos_y = pos_y + 60
-	end	
 end

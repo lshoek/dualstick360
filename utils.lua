@@ -1,14 +1,4 @@
--- ETC
-PI = 3.14159265359
-printTextCalls = 0
-printGameplayTextCalls = 0
-
--- COLLISION FILTER INFO
-PLAYER_INFO = 0x1
-PLAYERBULLET_INFO = 0x3
-ENEMYBULLET_INFO = 0x7
-ENEMY_INFO = 0xf
-OBJECT_INFO = 0x1f
+include("dualstick360/globals.lua")
 
 math.randomseed(os.time())
 
