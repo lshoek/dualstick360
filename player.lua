@@ -5,17 +5,20 @@ include("dualstick360/utils.lua")
 Player = {}
 Player.__index = Player
 
+--[[ Create a new Player object ]]
 function Player.new()
 	local self = setmetatable({}, Player)
 	self.go = GameObjectManager:createGameObject("PlayerOne")
 	return self
 end
 
+--[[ Update the healthbar (global) ]]
 function healthbarupdate()
 	local hpLenght = (player.hp/PLAYER_HP)*HEALTH_BAR_LENGTH
 	player.hb.rc:setScale(Vec3(5, -hpLenght, 0.1))
 end
 
+--[[ Initialize the current Player object, constructs a rigid body, all objects that are part of the Player and sets its members. ]]
 function Player:init() -- : inserts metatable at args called 'self'
 
 	-- variables for movement
@@ -128,6 +131,10 @@ function Player:init() -- : inserts metatable at args called 'self'
     
 end
 
+--[[ 	Updates all members of the player. 
+		Reads input from gamepad/keyboard and updates the Player position and cursor direction.
+	 	Also fires bullets and activates shield 
+	]]
 function Player:update(f)
 	-- gamepad movement controls (analog stick angle and push)
 		local leftStick = InputHandler:gamepad(0):leftStick()

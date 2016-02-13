@@ -7,6 +7,7 @@ include("dualstick360/enemy.lua")
 include("dualstick360/healthpack.lua")
 include("dualstick360/level1.lua")
 
+--[[ Initialize the first game objects. Constructs a player and camera ]]
 function init()
 	-- init player
 	player = Player.new()
@@ -20,14 +21,9 @@ function init()
 	cam.cc:lookAt(cam.lookDir:mulScalar(2.5))
 	cam.cc:setState(ComponentState.Active)
 
-	--[[local terrain = GameObjectManager:createGameObject("terrain")
-	terrain.rc = terrain:createRenderComponent()
-	terrain.rc:setPath("data/models/verylasttest.fbx")
-	terrain.rc:setScale(Vec3(1000,1000,0))
-    terrain:setPosition(Vec3(0,0,19))
-	terrain:setRotation(Quaternion(Vec3(0,1,0),180))]]--
 end
 
+--[[ Update all of our game objects. Checks the condition of our game as well. Called every frame. ]]
 function update(deltaTime)
     -- move camera
     cam.cc:setPosition(Vec3(player.rb:getPosition().x, player.rb:getPosition().y, CAMERA_Z))
@@ -86,7 +82,7 @@ function update(deltaTime)
 end
 Events.Update:registerListener(update)
 
--- main
+--[[ Construct a Physicsworld, initialize first game objects, and build the first level. ]]
 local cinfo = WorldCInfo()
 cinfo.worldSize = 2000
 world = PhysicsFactory:createWorld(cinfo)

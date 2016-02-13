@@ -6,11 +6,13 @@ include("dualstick360/utils.lua")
 Enemy = {}
 Enemy.__index = Enemy
 
+--[[ Create a new Enemy object ]]
 function Enemy.new()
 	local self = setmetatable({}, Enemy)
 	return self
 end
 
+--[[ Create Function with parameters explained in the documentation for creating enemies]]
 function createEnemy(position, behaviourType, size, distance, clockwise, shootingDir,strong)
 	local e = Enemy.new()
 	ENEMY_ARRAYSIZE = ENEMY_ARRAYSIZE + 1
@@ -18,6 +20,7 @@ function createEnemy(position, behaviourType, size, distance, clockwise, shootin
 	enemyArray[ENEMY_ARRAYSIZE] = e
 end
 
+--[[ Initialize Enemy object; constructs a rigid body and all objects that are part of the Enemy and sets its members. ]]
 function Enemy:init(guid, startPosition, behaviourType, size, walkingDistance, clockwise, shootingDir,strong)
 	-- just defaults
 	self.go = GameObjectManager:createGameObject(guid)
@@ -375,7 +378,6 @@ function Enemy:init(guid, startPosition, behaviourType, size, walkingDistance, c
 	end
 	
 	--StateMachine
-	io.write("/".. guid .. "FSM")
 	self.fsm_name = guid .. "FSM"
 	
 	self.fsm = StateMachine { 

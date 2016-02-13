@@ -4,11 +4,13 @@ include("dualstick360/utils.lua")
 Bullet = {}
 Bullet.__index = Bullet
 
+--[[ Create a new Bullet object ]]
 function Bullet.new()
 	local self = setmetatable({}, Bullet)
 	return self
 end
 
+--[[ Fires a collision event for any Bullet. Handles Bullet-Player and Bullet-Enemy collision. ]]
 function bulletCollision(eventData)
 		local ridigBody_Bullet = eventData:getBody(CollisionArgsCallbackSource.A)
 		local rigidBody_Other = eventData:getBody(CollisionArgsCallbackSource.B)
@@ -54,6 +56,7 @@ function bulletCollision(eventData)
 	return EventResult.Handled
 end
 
+--[[ Initialize the current Bullet object, constructs a rigid boddy for the Bullet and sets its members. ]]
 function Bullet:init(guid, fromPlayer, strong)
 	self.go = GameObjectManager:createGameObject("b" .. guid)
 	self.currentLifeTime = 0
@@ -100,6 +103,7 @@ function Bullet:init(guid, fromPlayer, strong)
 	self.go:setComponentStates(ComponentState.Inactive)
 end
 
+--[[ Activates a Bullet. This will make the Bullet available to be fired for either an Enemy or a Player object. ]]
 function Bullet:activateBullet(position, direction, speed)
 	self.isActive = true
 	self.isHurting = true
@@ -108,6 +112,7 @@ function Bullet:activateBullet(position, direction, speed)
 	self.rb:applyLinearImpulse(direction:mulScalar(speed))
 end
 
+--[[ Updates the lifetime of this Bullet. When its lifetime has reached its limit, the Bullet will reset/deactivate itself. ]]
 function Bullet:update(f)
 	if (self.currentLifeTime >= BULLET_LIFETIME) then
 		self:reset()
@@ -115,6 +120,7 @@ function Bullet:update(f)
 	self.currentLifeTime = self.currentLifeTime + f
 end
 
+--[[ Deactivates a Bullet and sets its members back to its defaults. This Bullet now cannot be fired until it is activated again. ]]
 function Bullet:reset(f)
 	self.currentLifeTime = 0
 	self.isActive = false

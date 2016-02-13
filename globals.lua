@@ -47,7 +47,6 @@ ENEMY_RESTITUTION = 0
 ENEMY_ANGULARDAMPING = 1
 ENEMY_FRICTION = 0 
 
-
 -- type depending overrides
 
 -- move
