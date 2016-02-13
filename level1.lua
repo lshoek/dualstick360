@@ -131,6 +131,8 @@ function build_level_1()
     healthpack3:init("healthpack3", Vec3(150,-730,0))
         
     --createEnemy(position, behaviourType, size, distance, clockwise, shootingDir, strongBullets)
+	createEnemy(Vec3(-80, -330, 0),    ENEMY_BEHAVIOURTYPE_MOVE,    ENEMY_SIZE,  30,     true, ENEMY_SHOOTINGDIR_PLAYER, true)
+	
     createEnemy(Vec3(-80, -330, 0),    ENEMY_BEHAVIOURTYPE_STALKER,    ENEMY_SIZE,  0,     true, ENEMY_SHOOTINGDIR_PLAYER, true)
     createEnemy(Vec3(-10, -330, 0),    ENEMY_BEHAVIOURTYPE_STALKER,    ENEMY_SIZE,  0,     true, ENEMY_SHOOTINGDIR_PLAYER, true)
     createEnemy(Vec3(-50, -290, 0),    ENEMY_BEHAVIOURTYPE_STALKER,    ENEMY_SIZE,  0,     true, ENEMY_SHOOTINGDIR_PLAYER, true)

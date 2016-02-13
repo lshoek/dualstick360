@@ -25,7 +25,6 @@ function Player:init() -- : inserts metatable at args called 'self'
 	-- variables for shooting
 	self.bullets = {}
 	self.cursorDirection = Vec3(0, 0, 0)
-	self.numBullets = 0
 	self.timeSinceLastShot = 0
 	self.shootKeyPressed = false
 	
