@@ -36,15 +36,15 @@ function Enemy:init(guid, startPosition, behaviourType, size, walkingDistance, c
     end
 
 
-    cinfo.mass = 1
-	cinfo.linearDamping = 2.5
-	cinfo.restitution = 0
+    cinfo.mass = ENEMY_MASS
+	cinfo.linearDamping = ENEMY_LINDAMPING
+	cinfo.restitution = ENEMY_RESTITUTION
     cinfo.position = startPosition
-	cinfo.angularDamping = 1
-	cinfo.friction = 0
+	cinfo.angularDamping = ENEMY_ANGULARDAMPING
+	cinfo.friction = ENEMY_FRICTION
 	cinfo.collisionFilterInfo = ENEMY_INFO
 	cinfo.motionType = MotionType.Dynamic
-
+	
 	-- store parameters
 	self.startPos = startPosition
 	self.behaviourType = behaviourType
@@ -82,23 +82,23 @@ function Enemy:init(guid, startPosition, behaviourType, size, walkingDistance, c
 		cinfo.linearDamping = 0
 	end
 	if(behaviourType == ENEMY_BEHAVIOURTYPE_BOUNCE) then
-        cinfo.mass = 0.1
-		cinfo.linearDamping = 0.6
-		cinfo.restitution = 1
+        cinfo.mass = ENEMY_TYPE_BOUNCE_MASS
+		cinfo.linearDamping = ENEMY_TYPE_BOUNCE_LINDAMPING
+		cinfo.restitution = ENEMY_TYPE_BOUNCE_RESTITUTION
     end
 	if(behaviourType == ENEMY_BEHAVIOURTYPE_TOWER) then
 		cinfo.motionType = MotionType.Fixed
 	end
 	if(behaviourType == ENEMY_BEHAVIOURTYPE_BOSS) then
-		cinfo.mass = 1000
-		self.hp = 150
-		self.speed = 300
-		self.bulletLimit = 100 + 60
-		self.bulletDelay = 0.2
-		self.bulletSpeed = ENEMY_BULLETSPEED
-		self.bulletSize = 3
-		self.attackDistance = 200
-		self.scoreValue = 1000
+		cinfo.mass = ENEMY_TYPE_BOSS_MASS
+		self.hp = ENEMY_TYPE_BOSS_HP
+		self.speed = ENEMY_TYPE_BOSS_SPEED
+		self.bulletLimit = ENEMY_TYPE_BOSS_BULLETLIMIT
+		self.bulletDelay = ENEMY_TYPE_BOSS_BULLETDELAY
+		self.bulletSpeed = ENEMY_TYPE_BOSS_BULLESPEED
+		self.bulletSize = ENEMY_TYPE_BOSS_BULLETSIZE
+		self.attackDistance = ENEMY_TYPE_BOSS_ATTACKDISTANCE
+		self.scoreValue = ENEMY_TYPE_BOSS_SCOREVALUE
 		
 		for i = 1, self.bulletLimit do
 		local b = Bullet.new(i)
@@ -258,7 +258,7 @@ function Enemy:init(guid, startPosition, behaviourType, size, walkingDistance, c
 		elseif (self.behaviourType == ENEMY_BEHAVIOURTYPE_STALKER) then
 			local viewDirection = self.go:getViewDirection()
 			local distance = self.targetDirection:length()
-			if (distance > 10) then
+			if (distance > ENEMY_TYPE_STALKER_STEERDIST) then
 				local steer = calcSteering(self, self.targetDirection:normalized())
 				local rotationSpeed = ENEMY_ROTATIONSPEED * -steer
 				self.rb:applyLinearImpulse(viewDirection:mulScalar(self.speed))
