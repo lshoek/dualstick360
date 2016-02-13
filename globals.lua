@@ -6,6 +6,8 @@
 -- normal spawn		Vec3(1, 0, 0)
 PLAYER_STARTPOSITION = Vec3(1, 0, 0)
 PLAYER_SIZE = 5
+PLAYER_MASS = 1.5
+PLAYER_LINDAMP = 7.0
 PLAYER_MAXSPEED = 50
 PLAYER_BULLETLIMIT = 25
 PLAYER_BULLETDELAY = 0.1
@@ -94,14 +96,17 @@ BOSS_CONDITION_BEATEN = false
 		healthpack
 ]]--
 
-HEALTHPACK_SIZE = 8
-HEALTHPACK_HPPLUS = 25
+HEALTHPACK_ARRAYSIZE = 1
 
 --[[
 		bullet
 ]]--
 
 BULLET_LIFETIME = 2
+BULLET_MASS = 0.09
+BULLET_FRICTION = 0
+BULLET_MAXLINVEL = 500
+BULLET_LINDAMP = 0
 
 --[[
 		utils
@@ -127,6 +132,7 @@ OBJECT_INFO = 0x1f
 
 player = {}
 enemyArray = {}
+healthpackArray = {}
 
 GAME_OVER = false
 GAME_BEATEN = false

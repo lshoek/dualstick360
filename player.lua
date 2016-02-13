@@ -13,7 +13,7 @@ function Player.new()
 end
 
 --[[ Update the healthbar (global) ]]
-function healthbarupdate()
+function Player:healthbarupdate()
 	local hpLenght = (player.hp/PLAYER_HP)*HEALTH_BAR_LENGTH
 	player.hb.rc:setScale(Vec3(5, -hpLenght, 0.1))
 end
@@ -29,7 +29,6 @@ function Player:init() -- : inserts metatable at args called 'self'
 	self.bullets = {}
 	self.cursorDirection = Vec3(0, 0, 0)
 	self.timeSinceLastShot = 0
-	self.shootKeyPressed = false
 	
 	--variables for shield
 	self.shieldActive = false
@@ -50,22 +49,20 @@ function Player:init() -- : inserts metatable at args called 'self'
 	local cinfo = RigidBodyCInfo()
 	cinfo.shape = PhysicsFactory:createSphere(PLAYER_SIZE)
 	cinfo.position = PLAYER_STARTPOSITION
-	cinfo.mass = 1.5
-	cinfo.linearDamping = 7.0
+	cinfo.mass = PLAYER_MASS
+	cinfo.linearDamping = PLAYER_LINDAMP
 	cinfo.motionType = MotionType.Dynamic
 	cinfo.collisionFilterInfo = PLAYER_INFO
-
 	self.rb = self.physComp:createRigidBody(cinfo)
 	self.rb:setUserData(self)
 
-	--player shield 3parts
+	--player shield 3 parts
 	--middle
-	shield = {}
-	shield.go = GameObjectManager:createGameObject("Shield")
-	shield.physComp = shield.go:createPhysicsComponent()
+	self.shield = {}
+	self.shield.go = GameObjectManager:createGameObject("player_shield_mid")
+	self.shield.physComp = self.shield.go:createPhysicsComponent()
 
 	local cinfo = RigidBodyCInfo()
-	--cinfo.shape = PhysicsFactory:createBox(Vec3(0.9,4.5,7))
 	--												width				length				height		
 	cinfo.shape = PhysicsFactory:createBox(Vec3(0.19* PLAYER_SIZE,0.93*PLAYER_SIZE,1.4* PLAYER_SIZE))
 	cinfo.position = Vec3(10, 0, 0)
@@ -74,12 +71,11 @@ function Player:init() -- : inserts metatable at args called 'self'
 	cinfo.motionType = MotionType.Keyframed
 	cinfo.collisionFilterInfo = PLAYERSHIELD_INFO
 	
-	shield.rb = shield.physComp:createRigidBody(cinfo)
-	--shield.go:setComponentStates(ComponentState.Inactive)
+	self.shield.rb = self.shield.physComp:createRigidBody(cinfo)
 	--right
-	shield_r = {}
-	shield_r.go = GameObjectManager:createGameObject("Shield_r")
-	shield_r.physComp = shield_r.go:createPhysicsComponent()
+	self.shield_r = {}
+	self.shield_r.go = GameObjectManager:createGameObject("player_shield_r")
+	self.shield_r.physComp = self.shield_r.go:createPhysicsComponent()
 
 	local cinfo = RigidBodyCInfo()
 	--												width				length				height	
@@ -90,15 +86,15 @@ function Player:init() -- : inserts metatable at args called 'self'
 	cinfo.motionType = MotionType.Keyframed
 	cinfo.collisionFilterInfo = PLAYERSHIELD_INFO
 	
-	shield_r.rb = shield_r.physComp:createRigidBody(cinfo)
-	shield_r.go:setComponentStates(ComponentState.Inactive)
+	self.shield_r.rb = self.shield_r.physComp:createRigidBody(cinfo)
+	self.shield_r.go:setComponentStates(ComponentState.Inactive)
 	
-	shield_r.rb:setRotation(Quaternion(Vec3(0,0,1),45))
+	self.shield_r.rb:setRotation(Quaternion(Vec3(0,0,1),45))
 	
 	--left
-	shield_l = {}
-	shield_l.go = GameObjectManager:createGameObject("Shield_l")
-	shield_l.physComp = shield_l.go:createPhysicsComponent()
+	self.shield_l = {}
+	self.shield_l.go = GameObjectManager:createGameObject("player_shield_l")
+	self.shield_l.physComp = self.shield_l.go:createPhysicsComponent()
 
 	local cinfo = RigidBodyCInfo()
 	--												width				length				height	
@@ -109,9 +105,9 @@ function Player:init() -- : inserts metatable at args called 'self'
 	cinfo.motionType = MotionType.Keyframed
 	cinfo.collisionFilterInfo = PLAYERSHIELD_INFO
 	
-	shield_l.rb = shield_l.physComp:createRigidBody(cinfo)
-	shield_l.go:setComponentStates(ComponentState.Inactive)
-	shield_l.rb:setRotation(Quaternion(Vec3(0,0,1),-45))	
+	self.shield_l.rb = self.shield_l.physComp:createRigidBody(cinfo)
+	self.shield_l.go:setComponentStates(ComponentState.Inactive)
+	self.shield_l.rb:setRotation(Quaternion(Vec3(0,0,1),-45))	
 
 	-- init bullets
 	for i=1, PLAYER_BULLETLIMIT do
@@ -208,28 +204,28 @@ function Player:update(f)
 		
 		--update shield		
 		if ((self.rightStickPush > PLAYER_MINIMUMPUSH or self.keyboardKeyPressed) and self.shieldActive) then
-			shield.go:setComponentStates(ComponentState.Active)
-			shield.rb:setPosition(self.rb:getPosition().x + self.cursorDirection.x*PLAYER_SHIELDDISTANCE,self.rb:getPosition().y + self.cursorDirection.y*PLAYER_SHIELDDISTANCE, 0)
-			shieldrotation_deg = calcAngleBetween(Vec3(0,1,0),self.cursorDirection)
-			shield.rb:setRotation(Quaternion(Vec3(0,0,1),shieldrotation_deg))
+			self.shield.go:setComponentStates(ComponentState.Active)
+			self.shield.rb:setPosition(self.rb:getPosition().x + self.cursorDirection.x*PLAYER_SHIELDDISTANCE,self.rb:getPosition().y + self.cursorDirection.y*PLAYER_SHIELDDISTANCE, 0)
+			local shieldrotation_deg = calcAngleBetween(Vec3(0,1,0),self.cursorDirection)
+			self.shield.rb:setRotation(Quaternion(Vec3(0,0,1),shieldrotation_deg))
 			
-			shield_r.go:setComponentStates(ComponentState.Active)
+			self.shield_r.go:setComponentStates(ComponentState.Active)
 			q = Quaternion(Vec3(0.0, 0.0, 1.0), 45)
 			v = q:toMat3():mulVec3(self.cursorDirection)
-			shield_r.rb:setPosition(self.rb:getPosition().x + v.x*PLAYER_SHIELDDISTANCE_SIDE,self.rb:getPosition().y + v.y*PLAYER_SHIELDDISTANCE_SIDE, 0)
-			shieldrotation_deg = calcAngleBetween(Vec3(0,1,0),self.cursorDirection)
-			shield_r.rb:setRotation(Quaternion(Vec3(0,0,1),shieldrotation_deg+45))
+			self.shield_r.rb:setPosition(self.rb:getPosition().x + v.x*PLAYER_SHIELDDISTANCE_SIDE,self.rb:getPosition().y + v.y*PLAYER_SHIELDDISTANCE_SIDE, 0)
+			local shieldrotation_deg = calcAngleBetween(Vec3(0,1,0),self.cursorDirection)
+			self.shield_r.rb:setRotation(Quaternion(Vec3(0,0,1),shieldrotation_deg+45))
 			
-			shield_l.go:setComponentStates(ComponentState.Active)
+			self.shield_l.go:setComponentStates(ComponentState.Active)
 			q = Quaternion(Vec3(0.0, 0.0, 1.0), -45)
 			v = q:toMat3():mulVec3(self.cursorDirection)
-			shield_l.rb:setPosition(self.rb:getPosition().x + v.x*PLAYER_SHIELDDISTANCE_SIDE,self.rb:getPosition().y + v.y*PLAYER_SHIELDDISTANCE_SIDE, 0)
-			shieldrotation_deg = calcAngleBetween(Vec3(0,1,0),self.cursorDirection)
-			shield_l.rb:setRotation(Quaternion(Vec3(0,0,1),shieldrotation_deg-45))
+			self.shield_l.rb:setPosition(self.rb:getPosition().x + v.x*PLAYER_SHIELDDISTANCE_SIDE,self.rb:getPosition().y + v.y*PLAYER_SHIELDDISTANCE_SIDE, 0)
+			local shieldrotation_deg = calcAngleBetween(Vec3(0,1,0),self.cursorDirection)
+			self.shield_l.rb:setRotation(Quaternion(Vec3(0,0,1),shieldrotation_deg-45))
 		else
-			shield.go:setComponentStates(ComponentState.Inactive)
-			shield_l.go:setComponentStates(ComponentState.Inactive)
-			shield_r.go:setComponentStates(ComponentState.Inactive)
+			self.shield.go:setComponentStates(ComponentState.Inactive)
+			self.shield_l.go:setComponentStates(ComponentState.Inactive)
+			self.shield_r.go:setComponentStates(ComponentState.Inactive)
 		end
 		
 		-- shoot bullets

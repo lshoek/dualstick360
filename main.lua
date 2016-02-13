@@ -64,9 +64,9 @@ function update(deltaTime)
 			DebugRenderer:printText(Vec2(-0.15, 0.45), "Hooray, that's the game!")
 		end
 		player.go:setComponentStates(ComponentState.Inactive)
-		shield.go:setComponentStates(ComponentState.Inactive)
-		shield_l.go:setComponentStates(ComponentState.Inactive)
-		shield_r.go:setComponentStates(ComponentState.Inactive)		
+		player.shield.go:setComponentStates(ComponentState.Inactive)
+		player.shield_l.go:setComponentStates(ComponentState.Inactive)
+		player.shield_r.go:setComponentStates(ComponentState.Inactive)		
 		if (InputHandler:isPressed(Key.Return)) then
 			player.go:setComponentStates(ComponentState.Active)
 			player.hp = PLAYER_HP

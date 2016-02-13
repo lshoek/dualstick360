@@ -27,8 +27,7 @@ function bulletCollision(eventData)
 					if(player.hp < 0) then
 						player.hp = 0
 					end
-					io.write("damageplayer\n")
-					healthbarupdate()
+					player:healthbarupdate()
 					ridigBody_Bullet:getUserData().isHurting = false
 					ridigBody_Bullet:getUserData().currentLifeTime = BULLET_LIFETIME
 
@@ -61,7 +60,6 @@ function Bullet:init(guid, fromPlayer, strong)
 	self.go = GameObjectManager:createGameObject("b" .. guid)
 	self.currentLifeTime = 0
 	self.isActive = false
-	self.isConstrained = false
 	self.isHurting = true
 	self.fromPlayer = fromPlayer
 	self.strong = strong
@@ -81,10 +79,11 @@ function Bullet:init(guid, fromPlayer, strong)
 	end
 	
 	cinfo.position = Vec3(0, 0, 0)
-	cinfo.mass = 0.09
-	cinfo.friction = 0
-	cinfo.maxLinearVelocity = 500
-	cinfo.linearDamping = 0
+	cinfo.mass = BULLET_MASS
+	cinfo.friction = BULLET_FRICTION
+	cinfo.maxLinearVelocity = BULLET_MAXLINVEL
+	cinfo.linearDamping = BULLET_LINDAMP
+	
 	cinfo.motionType = MotionType.Dynamic
 	cinfo.qualityType = QualityType.Bullet
 	
